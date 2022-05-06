@@ -168,7 +168,8 @@ class Trajectory:
 
     def load_csv_track(self):
         track = []
-        filename = 'map_data/' + self.map_name + "_opti.csv"
+        filename = 'map_data/' + self.map_name + "_centerline.csv"
+        # filename = 'map_data/' + self.map_name + "_opti.csv"
         with open(filename, 'r') as csvfile:
             csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
         
@@ -179,8 +180,10 @@ class Trajectory:
         print(f"Track Loaded: {filename}")
 
         # these get expanded
-        self.waypoints = track[:, 1:3]
-        self.vs = track[:, 5]
+        # self.waypoints = track[:, 1:3]
+        self.waypoints = track[:, 0:2]
+        # self.vs = track[:, 5]
+        self.vs = np.ones_like(track[:, 0])
 
         # these don't get expanded
         self.N = len(track)
@@ -241,7 +244,7 @@ class Trajectory:
         plt.pause(0.00001)
 
 
-# @njit(fastmath=False, cache=True)
+@njit(fastmath=False, cache=True)
 def get_actuation(pose_theta, lookahead_point, position, lookahead_distance, wheelbase):
     waypoint_y = np.dot(np.array([np.sin(-pose_theta), np.cos(-pose_theta)]), lookahead_point[0:2]-position)
     speed = lookahead_point[2]
@@ -249,43 +252,7 @@ def get_actuation(pose_theta, lookahead_point, position, lookahead_distance, whe
         return speed, 0.
     radius = 1/(2.0*waypoint_y/lookahead_distance**2)
     steering_angle = np.arctan(wheelbase/radius)
-    return speed, steering_angle, waypoint_y
-
-class PurePursuit:
-    def __init__(self, conf, run):
-        self.name = run.run_name
-        
-        self.trajectory = Trajectory(run.map_name)
-
-        self.lookahead = conf.lookahead
-        self.vgain = conf.v_gain
-        self.v_min_plan = conf.v_min_plan
-        self.wheelbase =  conf.l_f + conf.l_r
-        self.max_steer = conf.max_steer
-        self.vehicle_speed = conf.vehicle_speed
-
-        path = os.getcwd() + f"/Data/Vehicles/" + run.path  + self.name
-        init_file_struct(path)
-
-    def plan(self, obs):
-        ego_idx = obs['ego_idx']
-        pose_th = obs['poses_theta'][ego_idx] 
-        p_x = obs['poses_x'][ego_idx]
-        p_y = obs['poses_y'][ego_idx]
-        v_current = obs['linear_vels_x'][ego_idx]
-
-        pos = np.array([p_x, p_y], dtype=np.float)
-
-        if v_current < self.v_min_plan:
-            return np.array([0, self.vehicle_speed]) 
-
-        lookahead_point = self.trajectory.get_current_waypoint(pos, self.lookahead)
-
-        speed, steering_angle = get_actuation(pose_th, lookahead_point, pos, self.lookahead, self.wheelbase)
-        steering_angle = np.clip(steering_angle, -self.max_steer, self.max_steer)
-        # speed *= self.vgain
-
-        return np.array([steering_angle, self.vehicle_speed])
+    return speed, steering_angle
 
 
 
