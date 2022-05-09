@@ -19,7 +19,9 @@ class PurePursuit(Node):
     def __init__(self):
         super().__init__('pure_pursuit')
 
-        self.trajectory = Trajectory('levine_blocked')
+        # self.trajectory = Trajectory('levine_blocked')
+        self.trajectory = Trajectory('columbia_small')
+        self.trajectory.show_pts()
 
         self.lookahead = 1
         self.v_min_plan = 1
@@ -47,11 +49,11 @@ class PurePursuit(Node):
     def send_cmd_msg(self):
         lookahead_point = self.trajectory.get_current_waypoint(self.position, self.lookahead)
 
-        # plt.figure(3)
-        # plt.plot(self.position[0], self.position[1], 'ro')
-        # plt.plot(lookahead_point[0], lookahead_point[1], 'bo')
-        # plt.title(f"Theta: {self.theta}")
-        # plt.pause(0.00001)
+        plt.figure(3)
+        plt.plot(self.position[0], self.position[1], 'ro')
+        plt.plot(lookahead_point[0], lookahead_point[1], 'bo')
+        plt.title(f"Theta: {self.theta}")
+        plt.pause(0.00001)
 
         speed, steering_angle = get_actuation(self.theta, lookahead_point, self.position, self.lookahead, self.wheelbase)
         steering_angle = np.clip(steering_angle, -self.max_steer, self.max_steer)

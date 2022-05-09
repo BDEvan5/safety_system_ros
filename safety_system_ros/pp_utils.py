@@ -168,7 +168,7 @@ class Trajectory:
     def load_csv_track(self):
         track = []
         
-        filename = '/home/benjy/sim_ws/build/safety_system_ros/map_data/levine_blocked_centerline.csv'
+        filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
         # filename = os.path.dirname(os.path.abspath(__file__)) +  '/map_data/' + self.map_name + "_centerline.csv"
         # filename = 'map_data/' + self.map_name + "_opti.csv"
         with open(filename, 'r') as csvfile:
