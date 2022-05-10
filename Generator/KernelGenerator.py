@@ -88,7 +88,7 @@ class KernelGenerator:
 
 
 
-@njit(cache=True)
+@njit
 def viability_loop(kernel, dynamics):
     previous_kernel = np.copy(kernel)
     l_xs, l_ys, l_phis, l_qs = kernel.shape
@@ -103,7 +103,7 @@ def viability_loop(kernel, dynamics):
     return kernel
 
 
-@njit(cache=True)
+@njit
 def check_viable_state(i, j, k, q, dynamics, previous_kernel):
     l_xs, l_ys, l_phis, n_modes = previous_kernel.shape
     for l in range(n_modes):

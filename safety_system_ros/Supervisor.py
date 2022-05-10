@@ -45,8 +45,8 @@ class Supervisor(Node):
 
         self.time_step = conf.lookahead_time_step
 
-        # self.planner = PurePursuitPlanner()
-        self.planner = RandomPlanner(conf)
+        self.planner = PurePursuitPlanner()
+        # self.planner = RandomPlanner(conf)
 
         self.m = Modes(conf)
         self.interventions = 0
