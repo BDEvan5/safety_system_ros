@@ -14,6 +14,24 @@ from safety_system_ros.Dynamics import *
 from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner
 from copy import copy
 
+
+
+class RandomPlanner:
+    def __init__(self, conf, name="RandoPlanner"):
+        self.d_max = conf.max_steer # radians  
+        self.name = name
+        self.speed = conf.vehicle_speed
+
+        # path = os.getcwd() + f"/{conf.vehicle_path}" + self.name 
+        # init_file_struct(path)
+        # self.path = path
+        # np.random.seed(conf.random_seed)
+
+    def plan(self, pos, th):
+        steering = np.random.uniform(-self.d_max, self.d_max)
+        return np.array([steering, self.speed])
+
+
 class Supervisor(Node):
     def __init__(self):
         super().__init__('supervisor')
@@ -27,7 +45,8 @@ class Supervisor(Node):
 
         self.time_step = conf.lookahead_time_step
 
-        self.planner = PurePursuitPlanner()
+        # self.planner = PurePursuitPlanner()
+        self.planner = RandomPlanner(conf)
 
         self.m = Modes(conf)
         self.interventions = 0
@@ -36,6 +55,7 @@ class Supervisor(Node):
         self.position = np.array([0, 0])
         self.velocity = 0
         self.theta = 0
+        self.state = np.zeros(5)
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(0.05, self.send_cmd_msg)
@@ -56,13 +76,13 @@ class Supervisor(Node):
         # plt.plot(self.position[0], self.position[1], 'ro')
         # plt.pause(0.00001)
 
-        z_rotation = msg.twist.twist.angular.z
-        if self.velocity > 0.1:
-            steering = np.arctan(0.33/self.velocity * z_rotation)
-        else:
-            steering = 0
+        ang_z = msg.twist.twist.angular.z
+        # if self.velocity > 0.1:
+        #     steering = np.arctan(0.33/self.velocity * z_rotation)
+        # else:
+        #     steering = 0
 
-        self.state = np.array([position.x, position.y, theta, self.velocity, steering])
+        self.state = np.array([position.x, position.y, theta, self.velocity, ang_z])
 
     def send_cmd_msg(self):
         action = self.planner.plan(self.position, self.theta)
@@ -114,21 +134,25 @@ class Supervisor(Node):
         return valids
 
 
+
 class Modes:
     def __init__(self, conf) -> None:
         self.time_step = conf.kernel_time_step
         self.nq_steer = conf.nq_steer
         self.max_steer = conf.max_steer
         vehicle_speed = conf.vehicle_speed
+        wheelbase = conf.l_r + conf.l_f
 
-        ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
-        vs = vehicle_speed * np.ones_like(ds)
-        self.qs = np.stack((ds, vs), axis=1)
+        self.ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
+        phi_dots = vehicle_speed/wheelbase * np.tan(self.ds)
+        vs = vehicle_speed * np.ones_like(phi_dots)
+        self.qs = np.stack((phi_dots, vs), axis=1)
+        self.acts = np.stack((self.ds, vs), axis=1)
 
         self.n_modes = len(self.qs)
 
-    def get_mode_id(self, delta):
-        d_ind = np.argmin(np.abs(self.qs[:, 0] - delta))
+    def get_mode_id(self, ang_z):
+        d_ind = np.argmin(np.abs(self.qs[:, 0] - ang_z))
         
         return int(d_ind)
 
@@ -137,6 +161,7 @@ class Modes:
         return self.qs[id]
 
     def __len__(self): return self.n_modes
+
 
 
 

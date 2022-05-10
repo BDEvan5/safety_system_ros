@@ -274,9 +274,11 @@ class RaceCarDynamics(object):
         self.steer_angle_vel = 0.0
         self.state = np.zeros((7, ))
         self.state[0:2] = state[0:2]
-        self.state[4] = state[2]
+        self.state[4] = state[2] # theta
         self.state[3] = state[3] # velocity
-        self.state[2] = state[4] # steering
+        self.state[2] = np.arctan(state[4] * 0.33/2) # steering
+        self.state[5] = state[4] # ang z vel
+        # init steering is 0 (gets quickly updated), slip angle is 0
         self.steer_buffer = np.empty((0, ))
         self.steer_buffer = np.append(state[4], self.steer_buffer)
 
@@ -355,7 +357,7 @@ def run_dynamics_update(x, u, dt):
     # plt.title('Positions: official sim')
 
     # plt.show()
-    inds = np.array([0, 1, 4, 3, 2])
+    inds = np.array([0, 1, 4, 3, 5])
 
     new_state = np.array(car.state[inds])
 
@@ -366,8 +368,8 @@ def run_dynamics_update(x, u, dt):
 
 
 
-# if __name__ == "__main__":
-#     x = np.array([0, 0, np.pi/2, 2, 0])
-#     u = np.array([0.4, 2])
-#     dt = 0.2
-#     run_dynamics_update(x, u, dt)
+if __name__ == "__main__":
+    x = np.array([0, 0, np.pi/2, 2, 0])
+    u = np.array([0.4, 2])
+    dt = 0.2
+    run_dynamics_update(x, u, dt)
