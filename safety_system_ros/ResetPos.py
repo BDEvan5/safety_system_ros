@@ -14,6 +14,10 @@ class ResetPosition(Node):
 
         self.ego_reset()
 
+        self.ego_reset()
+
+        self.ego_reset()
+
     def ego_reset(self):
         msg = PoseWithCovarianceStamped() 
 

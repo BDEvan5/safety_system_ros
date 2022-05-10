@@ -10,7 +10,7 @@ class PurePursuitPlanner:
     def __init__(self):
 
         self.trajectory = Trajectory('columbia_small')
-        self.trajectory.show_pts()
+        # self.trajectory.show_pts()
 
         self.lookahead = 1
         self.v_min_plan = 1

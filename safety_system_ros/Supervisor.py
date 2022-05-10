@@ -38,7 +38,7 @@ class Supervisor(Node):
         self.theta = 0
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        self.cmd_timer = self.create_timer(0.1, self.send_cmd_msg)
+        self.cmd_timer = self.create_timer(0.05, self.send_cmd_msg)
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
@@ -50,6 +50,11 @@ class Supervisor(Node):
         x, y, z = quaternion_to_euler_angle(msg.pose.pose.orientation.w, msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z)
         theta = z * np.pi / 180
         self.theta = copy(theta)
+
+
+        # plt.figure(3)
+        # plt.plot(self.position[0], self.position[1], 'ro')
+        # plt.pause(0.00001)
 
         z_rotation = msg.twist.twist.angular.z
         if self.velocity > 0.1:
@@ -87,11 +92,13 @@ class Supervisor(Node):
         return action
 
     def check_init_action(self, state, init_action):
-        next_state = run_dynamics_update(state, init_action, self.time_step/2)
-        safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
-        self.kernel.plot_state(next_state)
-        if not safe:
-            return safe, next_state
+        self.kernel.plot_state(state)
+
+        # next_state = run_dynamics_update(state, init_action, self.time_step/2)
+        # safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
+        # if not safe:
+        #     return safe, next_state
+
         next_state = run_dynamics_update(state, init_action, self.time_step)
         safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
         

@@ -50,7 +50,7 @@ dynamics_path: "Data/Dynamics/"
 nq_steer: 9              # number of modes for the steering range
 kernel_time_step: 0.2    # Planning timestep used in kernel generation
 lookahead_time_step: 0.2 # Planning timestep used the supervisor
-n_dx: 60                 # number of points per m in discretising the track map
+n_dx: 40                 # number of points per m in discretising the track map
 phi_range: 6.28 # I think this can be removed
 n_phi: 41                # number of points per rotation in discretising vehicle orientation
 
@@ -58,6 +58,6 @@ n_phi: 41                # number of points per rotation in discretising vehicle
 # constant_reward: 0       # constant reward applied at every step
 constant_reward: 1       # constant reward applied at every step
 kernel_mode: "viab"      # Name to save kernel by
-track_shrink_pixels: 0   # number of pixels to shrink the track map by
+track_shrink_pixels: 6   # number of pixels to shrink the track map by
 n_intermediate_pts: 2
 

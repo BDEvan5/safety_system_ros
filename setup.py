@@ -27,6 +27,7 @@ setup(
         'console_scripts': [
             'simple_node=safety_system_ros.SimpleNode:main',
             'pure_pursuit=safety_system_ros.PurePursuit:main',
+            'reset_car=safety_system_ros.ResetPos:main',
         ],
     },
 )
