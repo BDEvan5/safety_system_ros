@@ -55,10 +55,10 @@ class Supervisor(Node):
         self.position = np.array([0, 0])
         self.velocity = 0
         self.theta = 0
-        self.state = np.zeros(5)
+        self.steering_angle = 0.0
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        self.cmd_timer = self.create_timer(0.05, self.send_cmd_msg)
+        self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
