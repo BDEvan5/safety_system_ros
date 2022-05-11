@@ -63,7 +63,8 @@ class TrackPtsBase:
 
     def load_center_pts(self):
         track_data = []
-        filename = 'maps/' + self.map_name + '_std.csv'
+        filename = f"/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv"
+        # filename = 'maps/' + self.map_name + '_std.csv'
         
         try:
             with open(filename, 'r') as csvfile:
@@ -151,9 +152,9 @@ class RefDistanceReward(TrackPtsBase):
         self.b_distance = 1
 
     def __call__(self, state, s_prime):
-        # s_prime['reward'] = find_reward(s_prime)
-        prime_pos = np.array([s_prime['poses_x'][0], s_prime['poses_y'][0]])
-        pos = np.array([state['poses_x'][0], state['poses_y'][0]])
+        prime_pos = np.array([s_prime['state'][0:2]])
+        pos = np.array([state['state'][0:2]])
+
         reward = self.get_distance_r(pos, prime_pos, 1)
 
         reward += s_prime['reward']

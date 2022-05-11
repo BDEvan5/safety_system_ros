@@ -25,7 +25,7 @@ class Trainer(Node):
         
         conf = load_conf("config_file")
 
-        # self.planner = TrainVehicle("SafetyTrainingAgent", conf) 
+        self.planner = TrainVehicle("SafetyTrainingAgent", conf) 
         self.supervisor = Supervisor(conf)
 
         self.position = np.array([0, 0])
@@ -63,20 +63,23 @@ class Trainer(Node):
         self.scan = scan
 
     def send_cmd_msg(self):
-        # observation = {}
-        # observation["scan"] = self.scan
-        # observation['linear_vel_x'] = self.velocity
-        # observation['steering_delta'] = self.steering_angle
-        # action = self.planner.plan(observation)
-
-        action = np.array([0.0, 2.0])
-
+        observation = {}
+        observation["scan"] = self.scan
+        observation['linear_vel_x'] = self.velocity
+        observation['steering_delta'] = self.steering_angle
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle])
+        observation['state'] = state
+        observation['reward'] = 0.0
+
+
+        action = self.planner.plan(observation)
+        # action = np.array([0.0, 2.0])
+
         safe_action = self.supervisor.supervise(state, action) 
 
         drive_msg = AckermannDriveStamped()
-        drive_msg.drive.speed = safe_action[1]
-        drive_msg.drive.steering_angle = safe_action[0]
+        drive_msg.drive.speed = float(safe_action[1])
+        drive_msg.drive.steering_angle = float(safe_action[0])
         self.drive_publisher.publish(drive_msg)
 
 

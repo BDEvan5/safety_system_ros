@@ -35,6 +35,7 @@ kernel_train_n: 2000            # number of training steps to train agent
 buffer_n: 500
 
 h_size: 100
+range_finder_scale: 5
 
 #save_paths
 vehicle_path: "Data/Vehicles/"

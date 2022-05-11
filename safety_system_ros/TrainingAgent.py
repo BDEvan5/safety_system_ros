@@ -13,6 +13,7 @@ class BaseVehicle:
         self.max_v = sim_conf.max_v
         self.speed = sim_conf.vehicle_speed
         self.max_steer = sim_conf.max_steer
+        self.range_finder_scale = sim_conf.range_finder_scale
 
         self.loop_counter = 0
         self.action = None
@@ -34,7 +35,6 @@ class BaseVehicle:
         scan = np.array(obs['scan']) 
 
         scan = np.clip(scan/self.range_finder_scale, 0, 1)
-
 
         cur_v = [v_current/self.max_v]
         cur_d = [d_current/self.max_steer]
@@ -66,15 +66,15 @@ class TrainVehicle(BaseVehicle):
 
         self.t_his = TrainHistory(agent_name, sim_conf, load)
 
-        # self.calculate_reward = RefDistanceReward(sim_conf) 
-        self.calculate_reward = RefCTHReward(sim_conf) 
+        self.calculate_reward = RefDistanceReward(sim_conf) 
+        # self.calculate_reward = RefCTHReward(sim_conf) 
 
     def plan(self, obs, add_mem_entry=True):
         nn_obs = self.transform_obs(obs)
         if add_mem_entry:
             self.add_memory_entry(obs, nn_obs)
             
-        if obs['linear_vels_x'][0] < self.v_min_plan:
+        if obs['linear_vel_x'] < self.v_min_plan:
             self.action = np.array([0, 7])
             return self.action
 
