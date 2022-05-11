@@ -10,8 +10,9 @@ from safety_system_ros.utils import *
 
 from safety_system_ros.Dynamics import *
 from copy import copy
+import csv
 
-
+from safety_system_ros.TrainingAgent import TrainVehicle
 
 class RandomPlanner:
     def __init__(self, conf, name="RandoPlanner"):
@@ -83,6 +84,92 @@ class Supervisor:
 
         return valids
 
+
+class LearningSupervisor(Supervisor):
+    def __init__(self, planner: TrainVehicle, conf: Namespace):
+        Supervisor.__init__(self, conf)
+
+        self.planner = planner
+        self.intervention_mag = 0
+        self.constant_reward = conf.constant_reward
+        self.ep_interventions = 0
+        self.intervention_list = []
+        self.lap_times = []
+
+    def done_entry(self, s_prime, steps=0):
+        s_prime['reward'] = self.calculate_reward(self.intervention_mag, s_prime)
+        self.planner.done_entry(s_prime)
+        self.intervention_list.append(self.ep_interventions)
+        self.ep_interventions = 0
+        self.lap_times.append(steps)
+
+    def lap_complete(self, steps):
+        self.planner.lap_complete()
+        self.intervention_list.append(self.ep_interventions)
+        self.ep_interventions = 0
+        self.lap_times.append(steps)
+
+    def save_intervention_list(self):
+        full_name = self.planner.path + f'/{self.planner.name}_intervention_list.csv'
+        data = []
+        for i in range(len(self.intervention_list)):
+            data.append([i, self.intervention_list[i]])
+        with open(full_name, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerows(data)
+
+        plt.figure(6)
+        plt.clf()
+        plt.plot(self.intervention_list)
+        plt.savefig(f"{self.planner.path}/{self.planner.name}_interventions.png")
+        plt.savefig(f"{self.planner.path}/{self.planner.name}_interventions.svg")
+
+        full_name = self.planner.path + f'/{self.planner.name}_laptime_list.csv'
+        data = []
+        for i in range(len(self.lap_times)):
+            data.append([i, self.lap_times[i]])
+        with open(full_name, 'w') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerows(data)
+
+        plt.figure(6)
+        plt.clf()
+        plt.plot(self.lap_times)
+        plt.savefig(f"{self.planner.path}/{self.planner.name}_laptimes.png")
+        plt.savefig(f"{self.planner.path}/{self.planner.name}_laptimes.svg")
+
+    def plan(self, obs):
+        if abs(self.intervention_mag) > 0:
+            obs['reward'] = - self.constant_reward + obs['reward']
+            self.planner.intervention_entry(obs)
+            init_action = self.planner.plan(obs, False)
+        else:
+            init_action = self.planner.plan(obs, True)
+
+        state = obs['state']
+
+        safe, next_state = self.check_init_action(state, init_action)
+
+        if safe:
+            self.intervention_mag = 0
+            self.safe_history.add_locations(init_action[0], init_action[0])
+            return init_action
+
+        self.ep_interventions += 1
+        self.intervene = True
+
+        valids = self.simulate_and_classify(state)
+        if not valids.any():
+            print(f"No Valid options --> State: {state}")
+            self.intervention_mag = 1
+            return init_action
+
+        action, idx = modify_mode(valids, self.m.qs)
+        self.safe_history.add_locations(init_action[0], action[0])
+
+        self.intervention_mag = (action[0] - init_action[0])/self.d_max
+
+        return action
 
 
 
@@ -289,12 +376,8 @@ class SafetyHistory:
         self.safe_actions = []
 
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = Supervisor()
-    rclpy.spin(node)
+def main():
+    pass 
 
 if __name__ == '__main__':
     main()
-
-

@@ -16,7 +16,7 @@ from safety_system_ros.Dynamics import *
 from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner
 from copy import copy
 
-from safety_system_ros.Supervisor import Supervisor
+from safety_system_ros.Supervisor import Supervisor, LearningSupervisor
 from safety_system_ros.TrainingAgent import TrainVehicle, TestVehicle
 
 class Trainer(Node):
@@ -26,7 +26,7 @@ class Trainer(Node):
         conf = load_conf("config_file")
 
         self.planner = TrainVehicle("SafetyTrainingAgent", conf) 
-        self.supervisor = Supervisor(conf)
+        self.supervisor = LearningSupervisor(self.planner, conf)
 
         self.position = np.array([0, 0])
         self.velocity = 0
@@ -71,11 +71,7 @@ class Trainer(Node):
         observation['state'] = state
         observation['reward'] = 0.0
 
-
-        action = self.planner.plan(observation)
-        # action = np.array([0.0, 2.0])
-
-        safe_action = self.supervisor.supervise(state, action) 
+        safe_action = self.supervisor.plan(observation) 
 
         drive_msg = AckermannDriveStamped()
         drive_msg.drive.speed = float(safe_action[1])
