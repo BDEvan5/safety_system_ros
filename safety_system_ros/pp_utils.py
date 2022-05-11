@@ -222,7 +222,10 @@ class Trajectory:
         wpts = np.vstack((self.waypoints[:, 0], self.waypoints[:, 1])).T
         nearest_point, nearest_dist, t, i = nearest_point_on_trajectory_py2(position, wpts)
         if nearest_dist < lookahead_distance:
-            lookahead_point, i2, t2 = first_point_on_trajectory_intersecting_circle(position, lookahead_distance, wpts, i+t, wrap=True)
+            try:
+                lookahead_point, i2, t2 = first_point_on_trajectory_intersecting_circle(position, lookahead_distance, wpts, i+t, wrap=True)
+            except:
+                i2 = 2
             if i2 == None:
                 return None
             current_waypoint = np.empty((3, ))

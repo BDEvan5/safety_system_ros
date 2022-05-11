@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
-from ackermann_msgs.msg import AckermannDriveStamped
+from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -62,6 +62,11 @@ class Supervisor(Node):
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
+        self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
+
+    def current_drive_callback(self, msg):
+        self.steering_angle = msg.steering_angle
+
     def odom_callback(self, msg):
         position = msg.pose.pose.position
         self.position = np.array([position.x, position.y])
@@ -76,17 +81,17 @@ class Supervisor(Node):
         # plt.plot(self.position[0], self.position[1], 'ro')
         # plt.pause(0.00001)
 
-        ang_z = msg.twist.twist.angular.z
+        # ang_z = msg.twist.twist.angular.z
         # if self.velocity > 0.1:
         #     steering = np.arctan(0.33/self.velocity * z_rotation)
         # else:
         #     steering = 0
 
-        self.state = np.array([position.x, position.y, theta, self.velocity, ang_z])
+        # self.state = np.array([position.x, position.y, theta, self.velocity, ang_z])
 
     def send_cmd_msg(self):
         action = self.planner.plan(self.position, self.theta)
-        safe_action = self.supervise(action)
+        safe_action = self.supervise(action) #TODO: implement action.
 
         drive_msg = AckermannDriveStamped()
         drive_msg.drive.speed = action[1]
@@ -94,7 +99,7 @@ class Supervisor(Node):
         self.drive_publisher.publish(drive_msg)
 
     def supervise(self, init_action):
-        state = self.state.copy()
+        state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle]).copy()
         safe, next_state = self.check_init_action(state, init_action)
         if safe:
             self.safe_history.add_locations(init_action, init_action)

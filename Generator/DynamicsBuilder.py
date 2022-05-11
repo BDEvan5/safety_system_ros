@@ -16,18 +16,15 @@ class Modes:
         self.nq_steer = conf.nq_steer
         self.max_steer = conf.max_steer
         vehicle_speed = conf.vehicle_speed
-        wheelbase = conf.l_r + conf.l_f
 
-        self.ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
-        phi_dots = vehicle_speed/wheelbase * np.tan(self.ds)
-        vs = vehicle_speed * np.ones_like(phi_dots)
-        self.qs = np.stack((phi_dots, vs), axis=1)
-        self.acts = np.stack((self.ds, vs), axis=1)
+        ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
+        vs = vehicle_speed * np.ones_like(ds)
+        self.qs = np.stack((ds, vs), axis=1)
 
         self.n_modes = len(self.qs)
 
-    def get_mode_id(self, ang_z):
-        d_ind = np.argmin(np.abs(self.qs[:, 0] - ang_z))
+    def get_mode_id(self, delta):
+        d_ind = np.argmin(np.abs(self.qs[:, 0] - delta))
         
         return int(d_ind)
 
@@ -41,8 +38,8 @@ class Modes:
 def generate_dynamics_entry(state, action, m, time, resolution, phis):
     dyns = np.zeros(4)
     new_state = run_dynamics_update(state, action, time)
-    dx, dy, phi, vel, ang_z = new_state[0], new_state[1], new_state[2], new_state[3], new_state[4]
-    new_q = m.get_mode_id(ang_z)
+    dx, dy, phi, vel, delta = new_state[0], new_state[1], new_state[2], new_state[3], new_state[4]
+    new_q = m.get_mode_id(delta)
 
     phi = limit_phi(phi)
     new_k = int(round((phi + np.pi) / (2*np.pi) * (len(phis)-1)))
@@ -68,7 +65,7 @@ def build_viability_dynamics(m, conf):
     for i, p in enumerate(phis):
         for j, state_mode in enumerate(m.qs): # searches through old q's
             state = np.array([0, 0, p, state_mode[1], state_mode[0]])
-            for k, action in enumerate(m.acts): # searches through actions
+            for k, action in enumerate(m.qs): # searches through actions
 
                 for l in range(ns):
                     dynamics[i, j, k, l] = generate_dynamics_entry(state.copy(), action, m, dt*(l+1), conf.n_dx, phis)                             

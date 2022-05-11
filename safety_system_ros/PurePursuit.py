@@ -63,7 +63,7 @@ class PurePursuit(Node):
         drive_msg.drive.steering_angle = steering_angle
         self.drive_publisher.publish(drive_msg)
 
-        # self.get_logger().info(f"Steering angle: {steering_angle}")
+        # self.get_logger().info(f"Steering angle: {steering_angle} -> Speed: {speed}")
         
 
 
