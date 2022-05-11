@@ -1,4 +1,5 @@
 import rclpy
+from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 
@@ -7,8 +8,10 @@ from matplotlib import pyplot as plt
 from numba import njit
 
 from safety_system_ros.utils import *
+# from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner 
 
 from safety_system_ros.Dynamics import *
+from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner
 from copy import copy
 
 
@@ -29,11 +32,12 @@ class RandomPlanner:
         return np.array([steering, self.speed])
 
 
-class Supervisor:
-    def __init__(self, conf):
+class SupervisorNode(Node):
+    def __init__(self):
+        super().__init__('supervisor')
         
-        conf = load_conf("config_file")
         self.d_max = 0.4
+        conf = load_conf("config_file")
         self.kernel = TrackKernel(conf, True)
 
         self.safe_history = SafetyHistory()
@@ -41,14 +45,53 @@ class Supervisor:
 
         self.time_step = conf.lookahead_time_step
 
+        # self.planner = PurePursuitPlanner()
+        self.planner = RandomPlanner(conf)
+
         self.m = Modes(conf)
         self.interventions = 0
 
-    def supervise(self, state, init_action):
+
+        self.position = np.array([0, 0])
+        self.velocity = 0
+        self.theta = 0
+        self.steering_angle = 0.0
+
+        self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+        self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
+
+        self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
+
+        self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
+
+    def current_drive_callback(self, msg):
+        self.steering_angle = msg.steering_angle
+
+    def odom_callback(self, msg):
+        position = msg.pose.pose.position
+        self.position = np.array([position.x, position.y])
+        self.velocity = msg.twist.twist.linear.x
+
+        x, y, z = quaternion_to_euler_angle(msg.pose.pose.orientation.w, msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z)
+        theta = z * np.pi / 180
+        self.theta = copy(theta)
+
+    def send_cmd_msg(self):
+        action = self.planner.plan(self.position, self.theta)
+        safe_action = self.supervise(action) 
+
+        drive_msg = AckermannDriveStamped()
+        drive_msg.drive.speed = safe_action[1]
+        drive_msg.drive.steering_angle = safe_action[0]
+        self.drive_publisher.publish(drive_msg)
+
+    def supervise(self, init_action):
+        state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle]).copy()
         safe, next_state = self.check_init_action(state, init_action)
         if safe:
             self.safe_history.add_locations(init_action, init_action)
             return init_action
+        # self.get_logger().info(f"Unsafe Action: {init_action}")
 
         self.interventions += 1
         valids = self.simulate_and_classify(state)
@@ -64,10 +107,10 @@ class Supervisor:
     def check_init_action(self, state, init_action):
         self.kernel.plot_state(state)
 
-        next_state = run_dynamics_update(state, init_action, self.time_step/2)
-        safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
-        if not safe:
-            return safe, next_state
+        # next_state = run_dynamics_update(state, init_action, self.time_step/2)
+        # safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
+        # if not safe:
+        #     return safe, next_state
 
         next_state = run_dynamics_update(state, init_action, self.time_step)
         safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
@@ -291,7 +334,7 @@ class SafetyHistory:
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Supervisor()
+    node = SupervisorNode()
     rclpy.spin(node)
 
 if __name__ == '__main__':

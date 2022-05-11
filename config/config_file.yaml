@@ -34,6 +34,8 @@ baseline_train_n: 20000            # number of training steps to train agent
 kernel_train_n: 2000            # number of training steps to train agent
 buffer_n: 500
 
+h_size: 100
+
 #save_paths
 vehicle_path: "Data/Vehicles/"
 kernel_path: "Data/Kernels/"
@@ -51,5 +53,5 @@ n_phi: 41                # number of points per rotation in discretising vehicle
 constant_reward: 1       # constant reward applied at every step
 kernel_mode: "viab"      # Name to save kernel by
 track_shrink_pixels: 12   # number of pixels to shrink the track map by
-n_intermediate_pts: 2
+n_intermediate_pts: 3
 
