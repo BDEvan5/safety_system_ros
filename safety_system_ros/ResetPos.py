@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from safety_system_ros.utils import *
-from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner
+from safety_system_ros.utils.utils import *
+from safety_system_ros.utils.PurePursuitPlanner import PurePursuitPlanner
 
 class ResetPosition(Node):
     def __init__(self):

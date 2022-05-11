@@ -80,8 +80,8 @@ class TrainHistory():
 
 
     def print_update(self, plot_reward=True):
-        if self.ptr < 10:
-            return
+        # if self.ptr < 10:
+        #     return
         
         mean10 = np.mean(self.rewards[self.ptr-10:self.ptr])
         mean100 = np.mean(self.rewards[max(0, self.ptr-100):self.ptr])

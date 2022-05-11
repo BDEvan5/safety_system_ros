@@ -156,7 +156,7 @@ class TestVehicle(BaseVehicle):
     def plan(self, obs):
         nn_obs = self.transform_obs(obs)
 
-        if obs['linear_vels_x'][0] < self.v_min_plan:
+        if obs['linear_vel_x'] < self.v_min_plan:
             self.action = np.array([0, 7])
             return self.action
 

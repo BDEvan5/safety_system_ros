@@ -6,7 +6,7 @@ from nav_msgs.msg import Odometry
 from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import LaserScan
 
-from safety_system_ros.TD3 import TD3
+from safety_system_ros.utils.TD3 import TD3
 
 from matplotlib import pyplot as plt
 import math

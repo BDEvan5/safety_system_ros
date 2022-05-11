@@ -14,17 +14,18 @@ from safety_system_ros.utils.utils import *
 from safety_system_ros.utils.Dynamics import *
 from copy import copy
 
-from safety_system_ros.utils.Supervisor import Supervisor, LearningSupervisor
-from safety_system_ros.TrainingAgent import TrainVehicle, TestVehicle
+from safety_system_ros.Supervisor import Supervisor
+from safety_system_ros.TrainingAgent import TestVehicle
 
-class Trainer(Node):
+class Tester(Node):
     def __init__(self):
-        super().__init__('safety_trainer')
+        super().__init__('safety_tester')
         
         conf = load_conf("config_file")
 
-        self.planner = TrainVehicle("SafetyTrainingAgent", conf) 
-        self.supervisor = LearningSupervisor(self.planner, conf)
+        self.planner = TestVehicle("SafetyTrainingAgent", conf) 
+
+        self.supervisor = Supervisor(conf)
 
         self.position = np.array([0, 0])
         self.velocity = 0
@@ -40,11 +41,10 @@ class Trainer(Node):
         self.running = False
 
         self.lap_count = 0 
-        self.n_laps = 10
+        self.n_laps = 2
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
-        self.training_timer = self.create_timer(0.1, self.training_callback)
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
@@ -85,15 +85,16 @@ class Trainer(Node):
         done = self.check_lap_done(self.position)
         if done:
             print(f"Run Complete in time: {self.current_lap_time}")
-            # self.running = False
-            self.supervisor.lap_complete(self.current_lap_time)
+            print(f"Number of interventions: {self.supervisor.interventions}")
+            # self.supervisor.lap_complete(self.current_lap_time)
 
             self.data_reset()
             self.lap_count += 1
 
             if self.lap_count == self.n_laps:
                 self.running = False
-                self.save_data()
+                self.ego_reset()
+                self.destroy_node()
 
         observation = {}
         observation["scan"] = self.scan
@@ -103,7 +104,8 @@ class Trainer(Node):
         observation['state'] = state
         observation['reward'] = 0.0
 
-        safe_action = self.supervisor.plan(observation) 
+        action = self.planner.plan(observation)
+        safe_action = self.supervisor.supervise(state, action)
 
         drive_msg = AckermannDriveStamped()
         drive_msg.drive.speed = float(safe_action[1])
@@ -111,19 +113,6 @@ class Trainer(Node):
         self.drive_publisher.publish(drive_msg)
 
         self.current_lap_time += 0.03 #this might be inaccurate due to processing
-        # print(f"Current time: {self.current_lap_time}")
-
-    def save_data(self):
-
-        self.ego_reset()
-        
-        self.planner.t_his.print_update(True)
-        self.planner.t_his.save_csv_data()
-        self.planner.agent.save(self.planner.path)
-        self.supervisor.save_intervention_list()
-
-        self.destroy_node()
-
 
     def check_lap_done(self, position):
         start_x = 0
@@ -183,7 +172,7 @@ class Trainer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Trainer()
+    node = Tester()
     node.run_lap()
     rclpy.spin(node)
 
