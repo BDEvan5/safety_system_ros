@@ -3,6 +3,7 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
+from geometry_msgs.msg import PoseWithCovarianceStamped
 
 
 import numpy as np
@@ -10,10 +11,7 @@ from matplotlib import pyplot as plt
 from numba import njit
 
 from safety_system_ros.utils import *
-# from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner 
-
 from safety_system_ros.Dynamics import *
-from safety_system_ros.PurePursuitPlanner import PurePursuitPlanner
 from copy import copy
 
 from safety_system_ros.Supervisor import Supervisor, LearningSupervisor
@@ -34,14 +32,29 @@ class Trainer(Node):
         self.steering_angle = 0.0
         self.scan = np.zeros(27)
 
+        self.lap_counts = 0
+        self.lap_times = 0.0 
+        self.toggle_list = 0 
+        self.near_start = True
+        self.current_lap_time = 0.0
+        self.running = False
+
+        self.lap_count = 0 
+        self.n_laps = 2
+
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
+        # self.training_timer = self.create_timer(0.1, self.planner.agent.train(2))
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
         self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
 
         self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
+
+        self.ego_reset_pub = self.create_publisher(
+            PoseWithCovarianceStamped,
+            '/initialpose', 10)
 
     def current_drive_callback(self, msg):
         self.steering_angle = msg.steering_angle
@@ -63,6 +76,21 @@ class Trainer(Node):
         self.scan = scan
 
     def send_cmd_msg(self):
+        if not self.running:
+            return
+
+        done = self.check_lap_done(self.position)
+        if done:
+            print(f"Run Complete in time: {self.current_lap_time}")
+            # self.running = False
+            self.supervisor.lap_complete(self.current_lap_time)
+
+            self.data_reset()
+            self.lap_count += 1
+
+            if self.lap_count == self.n_laps:
+                self.running = False
+
         observation = {}
         observation["scan"] = self.scan
         observation['linear_vel_x'] = self.velocity
@@ -78,10 +106,69 @@ class Trainer(Node):
         drive_msg.drive.steering_angle = float(safe_action[0])
         self.drive_publisher.publish(drive_msg)
 
+        self.current_lap_time += 0.03 #this might be inaccurate due to processing
+        # print(f"Current time: {self.current_lap_time}")
+
+    def check_lap_done(self, position):
+        start_x = 0
+        start_y = 0 
+        start_theta = 0
+        start_rot = np.array([[np.cos(-start_theta), -np.sin(-start_theta)], [np.sin(-start_theta), np.cos(-start_theta)]])
+
+        poses_x = np.array(position[0])-start_x
+        poses_y = np.array(position[1])-start_y
+        delta_pt = np.dot(start_rot, np.stack((poses_x, poses_y), axis=0))
+
+        dist2 = delta_pt[0]**2 + delta_pt[1]**2
+        closes = dist2 <= 0.1
+        if closes and not self.near_start:
+            self.near_start = True
+            self.toggle_list += 1
+        elif not closes and self.near_start:
+            self.near_start = False
+            self.toggle_list += 1
+            # print(self.toggle_list)
+        self.lap_counts = self.toggle_list // 2
+        if self.toggle_list < 4:
+            self.lap_times = self.current_lap_time
+        
+        done = self.toggle_list >= 2
+
+        return done
+
+    def data_reset(self):
+        self.current_lap_time = 0.0
+        self.num_toggles = 0
+        self.near_start = True
+        self.toggle_list = 0
+
+    def ego_reset(self):
+        msg = PoseWithCovarianceStamped() 
+
+        msg.pose.pose.position.x = 0.0 
+        msg.pose.pose.position.y = 0.0
+        msg.pose.pose.orientation.x = 0.0
+        msg.pose.pose.orientation.y = 0.0
+        msg.pose.pose.orientation.z = 0.0
+        msg.pose.pose.orientation.w = 1.0
+
+        self.ego_reset_pub.publish(msg)
+
+        print("Finished Resetting")
+
+    def run_lap(self):
+        self.ego_reset()
+
+        self.current_lap_time = 0.0
+        self.running = True
+
+
+
 
 def main(args=None):
     rclpy.init(args=args)
     node = Trainer()
+    node.run_lap()
     rclpy.spin(node)
 
 if __name__ == '__main__':
