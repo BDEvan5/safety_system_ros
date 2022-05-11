@@ -6,13 +6,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numba import njit
 
-from safety_system_ros.utils import *
+from safety_system_ros.utils.utils import *
 
-from safety_system_ros.Dynamics import *
+from safety_system_ros.utils.Dynamics import *
 from copy import copy
 import csv
 
-from safety_system_ros.TrainingAgent import TrainVehicle
+from safety_system_ros.Planners.TrainingAgent import TrainVehicle
 
 class RandomPlanner:
     def __init__(self, conf, name="RandoPlanner"):

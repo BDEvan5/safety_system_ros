@@ -16,15 +16,32 @@ from copy import copy
 
 from safety_system_ros.Supervisor import Supervisor
 from safety_system_ros.Planners.TrainingAgent import TestVehicle
+from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
 
-class Tester(Node):
+
+class RandomPlanner:
+    def __init__(self, conf, name="RandoPlanner"):
+        self.d_max = conf.max_steer # radians  
+        self.name = name
+        self.speed = conf.vehicle_speed
+
+    def plan(self, pos):
+        steering = np.random.uniform(-self.d_max, self.d_max)
+        return np.array([steering, self.speed])
+
+
+class RosEnv(Node):
     def __init__(self):
-        super().__init__('safety_tester')
+        super().__init__('ros_env')
         
         conf = load_conf("config_file")
 
-        self.planner = TestVehicle("SafetyTrainingAgent", conf) 
+        self.planner = TestVehicle("SafetyTrainingAgent_1", conf) 
+        # self.planner = RandomPlanner(conf)
+        # self.planner = PurePursuitPlanner(conf)
+        # self.supervision = True # parameter to turn the supervisor off or on
 
+        self.supervision = False 
         self.supervisor = Supervisor(conf)
 
         self.position = np.array([0, 0])
@@ -41,7 +58,7 @@ class Tester(Node):
         self.running = False
 
         self.lap_count = 0 
-        self.n_laps = 2
+        self.n_laps = 1
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
@@ -105,7 +122,10 @@ class Tester(Node):
         observation['reward'] = 0.0
 
         action = self.planner.plan(observation)
-        safe_action = self.supervisor.supervise(state, action)
+        if self.supervision: 
+            safe_action = self.supervisor.supervise(state, action)
+        else:
+            safe_action = action
 
         drive_msg = AckermannDriveStamped()
         drive_msg.drive.speed = float(safe_action[1])
@@ -172,7 +192,7 @@ class Tester(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Tester()
+    node = RosEnv()
     node.run_lap()
     rclpy.spin(node)
 

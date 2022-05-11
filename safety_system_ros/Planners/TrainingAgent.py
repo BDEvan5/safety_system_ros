@@ -1,7 +1,7 @@
 import numpy as np 
-from safety_system_ros.TD3 import TD3
-from safety_system_ros.HistoryStructs import TrainHistory
-from safety_system_ros.RewardFunctions import *
+from safety_system_ros.utils.TD3 import TD3
+from safety_system_ros.utils.HistoryStructs import TrainHistory
+from safety_system_ros.utils.RewardFunctions import *
 import torch
 from numba import njit
 

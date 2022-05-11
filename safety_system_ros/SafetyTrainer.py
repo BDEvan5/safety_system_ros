@@ -14,8 +14,8 @@ from safety_system_ros.utils.utils import *
 from safety_system_ros.utils.Dynamics import *
 from copy import copy
 
-from safety_system_ros.utils.Supervisor import Supervisor, LearningSupervisor
-from safety_system_ros.TrainingAgent import TrainVehicle, TestVehicle
+from safety_system_ros.Supervisor import Supervisor, LearningSupervisor
+from safety_system_ros.Planners.TrainingAgent import TrainVehicle, TestVehicle
 
 class Trainer(Node):
     def __init__(self):
@@ -23,7 +23,7 @@ class Trainer(Node):
         
         conf = load_conf("config_file")
 
-        self.planner = TrainVehicle("SafetyTrainingAgent", conf) 
+        self.planner = TrainVehicle("SafetyTrainingAgent_1", conf) 
         self.supervisor = LearningSupervisor(self.planner, conf)
 
         self.position = np.array([0, 0])

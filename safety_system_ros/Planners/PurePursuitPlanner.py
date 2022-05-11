@@ -7,9 +7,9 @@ import numpy as np
 from numba import njit
 
 class PurePursuitPlanner:
-    def __init__(self):
+    def __init__(self, conf):
 
-        self.trajectory = Trajectory('columbia_small')
+        self.trajectory = Trajectory(conf.map_name)
         # self.trajectory.show_pts()
 
         self.lookahead = 1
@@ -18,7 +18,10 @@ class PurePursuitPlanner:
         self.max_steer = 0.4
         self.vehicle_speed = 2.0
 
-    def plan(self, position, theta):
+    def plan(self, obs):
+        state = obs['state']
+        position = state[0:2]
+        theta = state[2]
         lookahead_point = self.trajectory.get_current_waypoint(position, self.lookahead)
 
         speed, steering_angle = get_actuation(theta, lookahead_point, position, self.lookahead, self.wheelbase)
