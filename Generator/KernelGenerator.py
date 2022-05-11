@@ -276,7 +276,7 @@ def build_track_kernel(conf):
 
 def generate_kernels():
     conf = load_conf("config_file")
-    # build_dynamics_table(conf)
+    build_dynamics_table(conf)
 
     conf.map_name = "columbia_small"
     build_track_kernel(conf)

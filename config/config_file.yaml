@@ -50,6 +50,6 @@ n_phi: 41                # number of points per rotation in discretising vehicle
 # constant_reward: 0       # constant reward applied at every step
 constant_reward: 1       # constant reward applied at every step
 kernel_mode: "viab"      # Name to save kernel by
-track_shrink_pixels: 6   # number of pixels to shrink the track map by
+track_shrink_pixels: 12   # number of pixels to shrink the track map by
 n_intermediate_pts: 2
 

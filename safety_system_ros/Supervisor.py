@@ -45,8 +45,8 @@ class Supervisor(Node):
 
         self.time_step = conf.lookahead_time_step
 
-        self.planner = PurePursuitPlanner()
-        # self.planner = RandomPlanner(conf)
+        # self.planner = PurePursuitPlanner()
+        self.planner = RandomPlanner(conf)
 
         self.m = Modes(conf)
         self.interventions = 0
@@ -76,26 +76,13 @@ class Supervisor(Node):
         theta = z * np.pi / 180
         self.theta = copy(theta)
 
-
-        # plt.figure(3)
-        # plt.plot(self.position[0], self.position[1], 'ro')
-        # plt.pause(0.00001)
-
-        # ang_z = msg.twist.twist.angular.z
-        # if self.velocity > 0.1:
-        #     steering = np.arctan(0.33/self.velocity * z_rotation)
-        # else:
-        #     steering = 0
-
-        # self.state = np.array([position.x, position.y, theta, self.velocity, ang_z])
-
     def send_cmd_msg(self):
         action = self.planner.plan(self.position, self.theta)
-        safe_action = self.supervise(action) #TODO: implement action.
+        safe_action = self.supervise(action) 
 
         drive_msg = AckermannDriveStamped()
-        drive_msg.drive.speed = action[1]
-        drive_msg.drive.steering_angle = action[0]
+        drive_msg.drive.speed = safe_action[1]
+        drive_msg.drive.steering_angle = safe_action[0]
         self.drive_publisher.publish(drive_msg)
 
     def supervise(self, init_action):
@@ -104,6 +91,7 @@ class Supervisor(Node):
         if safe:
             self.safe_history.add_locations(init_action, init_action)
             return init_action
+        # self.get_logger().info(f"Unsafe Action: {init_action}")
 
         self.interventions += 1
         valids = self.simulate_and_classify(state)
@@ -140,24 +128,22 @@ class Supervisor(Node):
 
 
 
+
 class Modes:
     def __init__(self, conf) -> None:
         self.time_step = conf.kernel_time_step
         self.nq_steer = conf.nq_steer
         self.max_steer = conf.max_steer
         vehicle_speed = conf.vehicle_speed
-        wheelbase = conf.l_r + conf.l_f
 
-        self.ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
-        phi_dots = vehicle_speed/wheelbase * np.tan(self.ds)
-        vs = vehicle_speed * np.ones_like(phi_dots)
-        self.qs = np.stack((phi_dots, vs), axis=1)
-        self.acts = np.stack((self.ds, vs), axis=1)
+        ds = np.linspace(-self.max_steer, self.max_steer, self.nq_steer)
+        vs = vehicle_speed * np.ones_like(ds)
+        self.qs = np.stack((ds, vs), axis=1)
 
         self.n_modes = len(self.qs)
 
-    def get_mode_id(self, ang_z):
-        d_ind = np.argmin(np.abs(self.qs[:, 0] - ang_z))
+    def get_mode_id(self, delta):
+        d_ind = np.argmin(np.abs(self.qs[:, 0] - delta))
         
         return int(d_ind)
 
