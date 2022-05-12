@@ -21,12 +21,17 @@ from safety_system_ros.BaseNode import BaseNode
 class SafetyTrainer(BaseNode):
     def __init__(self):
         conf = load_conf("config_file")
-        super().__init__("saety_trainer", conf)
+        super().__init__("safety_trainer", conf)
 
         self.planner = TrainVehicle("SafetyTrainingAgent_2", conf) 
         self.supervisor = LearningSupervisor(self.planner, conf)
 
         self.n_laps = 8
+
+        self.training_timer = self.create_timer(0.1, self.training_callback)
+
+    def training_callback(self):
+        self.planner.agent.train(2)
 
     def calculate_action(self, observation):
         safe_action = self.supervisor.plan(observation) 
@@ -40,7 +45,7 @@ class SafetyTrainer(BaseNode):
         self.supervisor.save_intervention_list()
 
     def lap_complete_callback(self):
-        print(f"Interventions: {self.supervisor.interventions}")
+        print(f"Interventions: {self.supervisor.ep_interventions}")
         self.supervisor.lap_complete(self.current_lap_time)
 
 def main(args=None):

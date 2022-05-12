@@ -20,8 +20,8 @@ class TestingNode(BaseNode):
         # self.planner = RandomPlanner(conf)
         # self.planner = PurePursuitPlanner(conf)
 
-        self.supervision = True 
-        # self.supervision = False
+        # self.supervision = True 
+        self.supervision = False
         self.supervisor = Supervisor(conf)
 
     def calculate_action(self, observation):
