@@ -25,9 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'simple_node=safety_system_ros.SimpleNode:main',
-            'pure_pursuit=safety_system_ros.PurePursuit:main',
-            'reset_car=safety_system_ros.ResetPos:main',
+            'car_tester=safety_system_ros.TestingNode:main',
+            'safety_trainer=safety_system_ros.SafetyTrainer:main',
         ],
     },
 )

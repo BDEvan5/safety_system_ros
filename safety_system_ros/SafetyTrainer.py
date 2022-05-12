@@ -23,7 +23,7 @@ class SafetyTrainer(BaseNode):
         conf = load_conf("config_file")
         super().__init__("safety_trainer", conf)
 
-        self.planner = TrainVehicle("SafetyTrainingAgent_2", conf) 
+        self.planner = TrainVehicle("SafetyTrainingAgent_3", conf) 
         self.supervisor = LearningSupervisor(self.planner, conf)
 
         self.n_laps = 8

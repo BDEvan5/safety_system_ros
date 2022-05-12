@@ -3,7 +3,7 @@ from argparse import Namespace
 import math 
 import numpy as np
 
-import os
+import os, shutil
 
 def load_conf(fname):
     full_path =  "/home/benjy/sim_ws/src/safety_system_ros/config/" + fname + '.yaml'
@@ -16,6 +16,14 @@ def load_conf(fname):
 
     return conf
 
+
+def init_file_struct(path):
+    if os.path.exists(path):
+        try:
+            os.rmdir(path)
+        except:
+            shutil.rmtree(path)
+    os.mkdir(path)
 
 
 def quaternion_to_euler_angle(w, x, y, z):

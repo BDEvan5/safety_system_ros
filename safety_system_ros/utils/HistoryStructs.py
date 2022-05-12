@@ -40,17 +40,17 @@ class TrainHistory():
         self.ep_reward = 0
         self.ep_rewards = []
 
-        if not load:
-            self.init_file_struct()
+    #     if not load:
+    #         self.init_file_struct()
 
-    def init_file_struct(self):
-        path = os.getcwd() +'/' + self.path
-        if os.path.exists(path):
-            try:
-                os.rmdir(path)
-            except:
-                shutil.rmtree(path)
-        os.mkdir(path)
+    # def init_file_struct(self):
+    #     path = os.getcwd() +'/' + self.path
+    #     if os.path.exists(path):
+    #         try:
+    #             os.rmdir(path)
+    #         except:
+    #             shutil.rmtree(path)
+    #     os.mkdir(path)
 
     def add_step_data(self, new_r):
         self.ep_reward += new_r

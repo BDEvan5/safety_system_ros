@@ -5,6 +5,7 @@ from safety_system_ros.utils.RewardFunctions import *
 import torch
 from numba import njit
 
+from safety_system_ros.utils.util_functions import *
 
 class BaseVehicle: 
     def __init__(self, agent_name, sim_conf):
@@ -63,6 +64,10 @@ class TrainVehicle(BaseVehicle):
         self.nn_state = None
         self.nn_act = None
         self.action = None
+
+        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
+        path = directory + sim_conf.vehicle_path + agent_name 
+        init_file_struct(path)
 
         self.t_his = TrainHistory(agent_name, sim_conf, load)
 
@@ -149,7 +154,8 @@ class TestVehicle(BaseVehicle):
 
         super().__init__(agent_name, sim_conf)
 
-        self.path = sim_conf.vehicle_path + agent_name
+        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
+        self.path = directory  + sim_conf.vehicle_path + agent_name
         self.actor = torch.load(self.path + '/' + agent_name + "_actor.pth")
 
         print(f"Agent loaded: {agent_name}")
