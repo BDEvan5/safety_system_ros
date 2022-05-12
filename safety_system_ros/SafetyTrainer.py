@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numba import njit
 
-from safety_system_ros.utils.utils import *
+from safety_system_ros.utils.util_functions import *
 from safety_system_ros.utils.Dynamics import *
 from copy import copy
 
@@ -123,7 +123,6 @@ class Trainer(Node):
         self.supervisor.save_intervention_list()
 
         self.destroy_node()
-
 
     def check_lap_done(self, position):
         start_x = 0

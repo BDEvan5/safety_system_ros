@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -10,37 +11,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numba import njit
 
+from safety_system_ros.utils.Dynamics import *
+from safety_system_ros.utils.util_functions import *
 from copy import copy
 
 from safety_system_ros.Supervisor import Supervisor
-from safety_system_ros.Planners.TrainingAgent import TestVehicle
-from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
-
-from safety_system_ros.utils.Dynamics import *
-from safety_system_ros.utils.util_functions import *
-
-class RandomPlanner:
-    def __init__(self, conf, name="RandoPlanner"):
-        self.d_max = conf.max_steer # radians  
-        self.name = name
-        self.speed = conf.vehicle_speed
-
-    def plan(self, pos):
-        steering = np.random.uniform(-self.d_max, self.d_max)
-        return np.array([steering, self.speed])
 
 
 
-class RosEnv(Node):
-    def __init__(self):
-        super().__init__('ros_env')
+
+class BaseNode(Node):
+    def __init__(self, node_name, conf):
+        super().__init__(node_name)
         
-        conf = load_conf("config_file")
-
-        self.planner = TestVehicle("SafetyTrainingAgent_1", conf) 
-        # self.planner = RandomPlanner(conf)
-        # self.planner = PurePursuitPlanner(conf)
-        # self.supervision = True # parameter to turn the supervisor off or on
+        self.planner = None
 
         self.supervision = False 
         self.supervisor = Supervisor(conf)
@@ -62,7 +46,7 @@ class RosEnv(Node):
         self.n_laps = 1
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        self.cmd_timer = self.create_timer(0.03, self.send_cmd_msg)
+        self.cmd_timer = self.create_timer(0.03, self.drive_callback)
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
@@ -96,24 +80,57 @@ class RosEnv(Node):
 
         self.scan = scan
 
-    def send_cmd_msg(self):
+    def lap_done(self):
+        print(f"Run Complete in time: {self.current_lap_time}")
+
+        self.lap_count += 1
+
+        if self.lap_count == self.n_laps:
+            self.running = False
+            self.ego_reset()
+            #? add an abstract method to save data in planner/supervisor before destroying the node?
+            self.destroy_node()
+
+        self.current_lap_time = 0.0
+        self.num_toggles = 0
+        self.near_start = True
+        self.toggle_list = 0
+
+    def drive_callback(self):
         if not self.running:
             return
 
-        done = self.check_lap_done(self.position)
-        if done:
-            print(f"Run Complete in time: {self.current_lap_time}")
-            print(f"Number of interventions: {self.supervisor.interventions}")
-            # self.supervisor.lap_complete(self.current_lap_time)
+        if self.check_lap_done(self.position):
+            self.lap_done()
+        
+        observation = self.build_observation()
 
-            self.data_reset()
-            self.lap_count += 1
+        action = self.calculate_action(observation)
 
-            if self.lap_count == self.n_laps:
-                self.running = False
-                self.ego_reset()
-                self.destroy_node()
+        # action = self.planner.plan(observation)
+        # if self.supervision: 
+        #     safe_action = self.supervisor.supervise(observation['state'], action)
+        # else:
+        #     safe_action = action
 
+        self.send_drive_message(action)
+
+        self.current_lap_time += 0.03 #this might be inaccurate due to processing
+
+    @abstractmethod
+    def calculate_action(self, observation):
+        """
+            Use the observation to calculate an action that is returned
+        """
+        raise NotImplementedError
+
+    def send_drive_message(self, action):
+        drive_msg = AckermannDriveStamped()
+        drive_msg.drive.speed = float(action[1])
+        drive_msg.drive.steering_angle = float(action[0])
+        self.drive_publisher.publish(drive_msg)
+
+    def build_observation(self):
         observation = {}
         observation["scan"] = self.scan
         observation['linear_vel_x'] = self.velocity
@@ -122,18 +139,7 @@ class RosEnv(Node):
         observation['state'] = state
         observation['reward'] = 0.0
 
-        action = self.planner.plan(observation)
-        if self.supervision: 
-            safe_action = self.supervisor.supervise(state, action)
-        else:
-            safe_action = action
-
-        drive_msg = AckermannDriveStamped()
-        drive_msg.drive.speed = float(safe_action[1])
-        drive_msg.drive.steering_angle = float(safe_action[0])
-        self.drive_publisher.publish(drive_msg)
-
-        self.current_lap_time += 0.03 #this might be inaccurate due to processing
+        return observation
 
     def check_lap_done(self, position):
         start_x = 0
@@ -162,12 +168,6 @@ class RosEnv(Node):
 
         return done
 
-    def data_reset(self):
-        self.current_lap_time = 0.0
-        self.num_toggles = 0
-        self.near_start = True
-        self.toggle_list = 0
-
     def ego_reset(self):
         msg = PoseWithCovarianceStamped() 
 
@@ -183,20 +183,13 @@ class RosEnv(Node):
         print("Finished Resetting")
 
     def run_lap(self):
+        if self.planner == None:
+            raise NotImplementedError
         self.ego_reset()
 
         self.current_lap_time = 0.0
         self.running = True
 
-
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = RosEnv()
-    node.run_lap()
-    rclpy.spin(node)
-
 if __name__ == '__main__':
-    main()
+    pass
 
