@@ -128,6 +128,7 @@ class TrainVehicle(BaseVehicle):
         """
         To be called when ep is done.
         """
+        print(f"Lap Complete: in agent {self.t_his.t_counter}")
         self.t_his.lap_done(False)
         self.t_his.print_update(False) #remove this line
         if self.t_his.ptr % 10 == 0:

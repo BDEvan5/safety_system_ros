@@ -81,14 +81,15 @@ class BaseNode(Node):
         self.scan = scan
 
     def lap_done(self):
-        print(f"Run Complete in time: {self.current_lap_time}")
+        print(f"Run {self.lap_count} Complete in time: {self.current_lap_time}")
+        self.lap_complete_callback()
 
         self.lap_count += 1
 
         if self.lap_count == self.n_laps:
             self.running = False
+            self.save_data_callback()
             self.ego_reset()
-            #? add an abstract method to save data in planner/supervisor before destroying the node?
             self.destroy_node()
 
         self.current_lap_time = 0.0
@@ -123,6 +124,14 @@ class BaseNode(Node):
             Use the observation to calculate an action that is returned
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def save_data_callback(self):
+        print("No extra data to save")
+
+    @abstractmethod
+    def lap_complete_callback(self):
+        pass
 
     def send_drive_message(self, action):
         drive_msg = AckermannDriveStamped()

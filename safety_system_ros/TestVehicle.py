@@ -9,19 +9,19 @@ import numpy as np
 from safety_system_ros.utils.util_functions import *
 
 
-class TestVehicle(BaseNode):
+class TestingNode(BaseNode):
     def __init__(self):
         conf = load_conf("config_file")
 
         super().__init__('test_vehicle', conf)
 
         
-        # self.planner = TestVehicle("SafetyTrainingAgent_1", conf) 
+        self.planner = TestVehicle("SafetyTrainingAgent_2", conf) 
         # self.planner = RandomPlanner(conf)
-        self.planner = PurePursuitPlanner(conf)
+        # self.planner = PurePursuitPlanner(conf)
 
-        # self.supervision = True # parameter to turn the supervisor off or on
-        self.supervision = False
+        self.supervision = True 
+        # self.supervision = False
         self.supervisor = Supervisor(conf)
 
     def calculate_action(self, observation):
@@ -29,6 +29,9 @@ class TestVehicle(BaseNode):
         if self.supervision: 
             return self.supervisor.supervise(observation['state'], action)
         return action
+
+    def lap_complete_callback(self):
+        print(f"Interventions: {self.supervisor.interventions}")
 
 class RandomPlanner:
     def __init__(self, conf, name="RandoPlanner"):
@@ -44,7 +47,7 @@ class RandomPlanner:
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TestVehicle()
+    node = TestingNode()
     node.run_lap()
     rclpy.spin(node)
 
