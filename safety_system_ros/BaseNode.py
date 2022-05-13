@@ -113,12 +113,6 @@ class BaseNode(Node):
 
         action = self.calculate_action(observation)
 
-        # action = self.planner.plan(observation)
-        # if self.supervision: 
-        #     safe_action = self.supervisor.supervise(observation['state'], action)
-        # else:
-        #     safe_action = action
-
         self.send_drive_message(action)
 
         self.current_lap_time += 0.03 #this might be inaccurate due to processing

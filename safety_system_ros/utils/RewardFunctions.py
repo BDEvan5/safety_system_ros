@@ -59,12 +59,12 @@ class TrackPtsBase:
         self.wpts = None
         self.ss = None
         self.map_name = config.map_name
+        self.directory = config.directory
         self.total_s = None
 
     def load_center_pts(self):
         track_data = []
-        filename = f"/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv"
-        # filename = 'maps/' + self.map_name + '_std.csv'
+        filename = f"{self.directory}map_data/{self.map_name}_centerline.csv"
         
         try:
             with open(filename, 'r') as csvfile:
@@ -91,7 +91,7 @@ class TrackPtsBase:
 
     def load_reference_pts(self):
         track_data = []
-        filename = 'maps/' + self.map_name + '_opti.csv'
+        filename = f"{self.directory}map_data/{self.map_name}_opti.csv"
         
         try:
             with open(filename, 'r') as csvfile:
