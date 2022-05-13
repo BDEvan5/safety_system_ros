@@ -26,7 +26,8 @@ def moving_average(data, period):
 class TrainHistory():
     def __init__(self, agent_name, conf, load=False) -> None:
         self.agent_name = agent_name
-        self.path = conf.vehicle_path + self.agent_name 
+        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
+        self.path = directory + conf.vehicle_path + agent_name 
 
         # training data
         self.ptr = 0

@@ -33,7 +33,7 @@ class BaseNode(Node):
         self.velocity = 0
         self.theta = 0
         self.steering_angle = 0.0
-        self.scan = np.zeros(27)
+        self.scan = np.zeros(27) # move to param file
 
         self.lap_counts = 0
         self.lap_times = 0.0 
@@ -43,7 +43,7 @@ class BaseNode(Node):
         self.running = False
 
         self.lap_count = 0 
-        self.n_laps = 1
+        self.n_laps = None
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(0.03, self.drive_callback)

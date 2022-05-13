@@ -1,0 +1,11 @@
+# testing
+
+car_tester:
+  ros__parameters:
+    n_laps: 1
+    supervision: False
+    test_mode: pure_pursuit 
+
+
+
+

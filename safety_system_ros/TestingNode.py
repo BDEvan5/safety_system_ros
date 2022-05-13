@@ -13,16 +13,19 @@ class TestingNode(BaseNode):
     def __init__(self):
         conf = load_conf("config_file")
 
-        super().__init__('test_vehicle', conf)
+        super().__init__('car_tester', conf)
 
-        
-        self.planner = TestVehicle("SafetyTrainingAgent_2", conf) 
+        self.declare_parameter('n_laps')
+        self.planner = TestVehicle("SafetyTrainingAgent_3", conf) 
         # self.planner = RandomPlanner(conf)
         # self.planner = PurePursuitPlanner(conf)
 
         # self.supervision = True 
         self.supervision = False
         self.supervisor = Supervisor(conf)
+
+        self.n_laps = self.get_parameter('n_laps').value
+        self.get_logger().info(f"Param laps: {self.n_laps}")
 
     def calculate_action(self, observation):
         action = self.planner.plan(observation)

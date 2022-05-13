@@ -55,7 +55,10 @@ class TrainVehicle(BaseVehicle):
     def __init__(self, agent_name, sim_conf, load=False):
         super().__init__(agent_name, sim_conf)
 
-        self.path = sim_conf.vehicle_path + agent_name
+        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
+        self.path = directory + sim_conf.vehicle_path + agent_name 
+        init_file_struct(self.path)
+
         state_space = 2 + self.n_beams
         self.agent = TD3(state_space, 1, 1, agent_name)
         self.agent.try_load(load, sim_conf.h_size, self.path)
@@ -65,9 +68,7 @@ class TrainVehicle(BaseVehicle):
         self.nn_act = None
         self.action = None
 
-        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
-        path = directory + sim_conf.vehicle_path + agent_name 
-        init_file_struct(path)
+
 
         self.t_his = TrainHistory(agent_name, sim_conf, load)
 
