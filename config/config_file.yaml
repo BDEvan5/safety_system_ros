@@ -1,12 +1,4 @@
 
-map_name: "columbia_small"
-# map_name: "f1_aut_wide"
-stheta: 0  # columbia
-
-map_ext: ".png"
-sx: 0.0
-sy: 0
-
 # Vehicle params
 max_v: 7
 max_a: 8.5
@@ -17,42 +9,34 @@ m: 3.47
 g: 9.81
 l_r: 0.171
 l_f: 0.158
+
+#-------------------------------------------------------------------------
+
+# tuneable parameters
 vehicle_speed: 2          # speed at which the vehilce is set to travel at
-
-# agent parameters
-#simulator
-sim_steps: 5              # Number of simulator steps per planning step
-max_steps: 1000
-# add a simtime step?
-random_seed: 1000          # Seed for NumPy randomness
-
 v_min_plan: 1            # minimum speed for selecting a steering angle to prevent instability
-
-# test params
-test_n: 10               # number of test episodes to run
-baseline_train_n: 20000            # number of training steps to train agent
-kernel_train_n: 2000            # number of training steps to train agent
-buffer_n: 500
-
-h_size: 100
+lookahead: 1
 range_finder_scale: 5
+h_zise: 100
+
+#-------------------------------------------------------------------------
 
 #save_paths
+directory: "/home/benjy/sim_ws/src/safety_system_ros/"
 vehicle_path: "Data/Vehicles/"
 kernel_path: "Data/Kernels/"
 dynamics_path: "Data/Dynamics/"
 
+#-------------------------------------------------------------------------
+# Kernel paramters
 nq_steer: 9              # number of modes for the steering range
 kernel_time_step: 0.2    # Planning timestep used in kernel generation
 lookahead_time_step: 0.2 # Planning timestep used the supervisor
 n_dx: 60                 # number of points per m in discretising the track map
 phi_range: 6.28 # I think this can be removed
 n_phi: 41                # number of points per rotation in discretising vehicle orientation
-
-# kernel Learning
-# constant_reward: 0       # constant reward applied at every step
-constant_reward: 1       # constant reward applied at every step
-kernel_mode: "viab"      # Name to save kernel by
 track_shrink_pixels: 12   # number of pixels to shrink the track map by
 n_intermediate_pts: 3
+
+#-------------------------------------------------------------------------
 

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from numba import njit
 import yaml
 from PIL import Image
-from safety_system_ros.utils import load_conf
+from safety_system_ros.utils.util_functions import load_conf
 from DynamicsBuilder import build_dynamics_table
 
 
@@ -37,7 +37,7 @@ class KernelGenerator:
 
         self.kernel[:, :, :, :] = self.track_img[:, :, None, None] * np.ones((self.n_x, self.n_y, self.n_phi, self.n_modes))
         
-        self.dynamics = np.load(f"{sim_conf.dynamics_path}{sim_conf.kernel_mode}_dyns.npy")
+        self.dynamics = np.load(f"{sim_conf.dynamics_path}_dyns.npy")
         print(f"Dynamics Loaded: {self.dynamics.shape}")
 
     def get_filled_kernel(self):
@@ -184,7 +184,7 @@ def shrink_img(img, n_shrinkpx):
 
 class VeiwKernel:
     def __init__(self, conf, track_img):
-        kernel_name = f"{conf.kernel_path}Kernel_{conf.kernel_mode}_{conf.map_name}.npy"
+        kernel_name = f"{conf.kernel_path}Kernel_{conf.map_name}.npy"
         self.kernel = np.load(kernel_name)
 
         self.o_map = np.copy(track_img)    
@@ -248,7 +248,7 @@ class VeiwKernel:
         
         plt.pause(0.0001)
         plt.pause(1)
-        plt.savefig(f"{self.sim_conf.kernel_path}Kernel_build_{self.sim_conf.kernel_mode}.svg")
+        plt.savefig(f"{self.sim_conf.kernel_path}Kernel_build.svg")
 
         if show:
             plt.show()
@@ -256,10 +256,10 @@ class VeiwKernel:
     def save_kernel(self, name):
 
         self.view_speed_build(False)
-        plt.savefig(f"{self.sim_conf.kernel_path}KernelSpeed_{name}_{self.sim_conf.kernel_mode}.png")
+        plt.savefig(f"{self.sim_conf.kernel_path}KernelSpeed_{name}_.png")
 
         self.view_angle_build(False)
-        plt.savefig(f"{self.sim_conf.kernel_path}KernelAngle_{name}_{self.sim_conf.kernel_mode}.png")
+        plt.savefig(f"{self.sim_conf.kernel_path}KernelAngle_{name}.png")
 
 
 def build_track_kernel(conf):
@@ -269,7 +269,7 @@ def build_track_kernel(conf):
     kernel.view_kernel_angles(False)
     kernel.calculate_kernel(100)
 
-    name = f"Kernel_{conf.kernel_mode}_{conf.map_name}"
+    name = f"Kernel_{conf.map_name}"
     np.save(f"{conf.kernel_path}{name}.npy", kernel.kernel)
     print(f"Saved kernel to file: {name}")
 

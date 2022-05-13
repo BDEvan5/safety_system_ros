@@ -21,14 +21,19 @@ from safety_system_ros.Supervisor import Supervisor
 
 
 class BaseNode(Node):
-    def __init__(self, node_name, conf):
+    def __init__(self, node_name):
         super().__init__(node_name)
+        self.declare_parameter('config_filename')
+        config_filename = self.get_parameter('config_filename').value
+        self.conf = load_conf(config_filename)
+
         
+        # abstract variables
         self.planner = None
-
         self.supervision = False 
-        self.supervisor = Supervisor(conf)
+        self.supervisor = None
 
+        # current vehicle state
         self.position = np.array([0, 0])
         self.velocity = 0
         self.theta = 0

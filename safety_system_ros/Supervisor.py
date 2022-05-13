@@ -31,11 +31,11 @@ class RandomPlanner:
 
 
 class Supervisor:
-    def __init__(self, conf):
+    def __init__(self, conf, map_name):
         
         conf = load_conf("config_file")
         self.d_max = 0.4
-        self.kernel = TrackKernel(conf, True)
+        self.kernel = TrackKernel(conf, map_name, True)
 
         self.safe_history = SafetyHistory()
         self.intervene = False
@@ -86,8 +86,8 @@ class Supervisor:
 
 
 class LearningSupervisor(Supervisor):
-    def __init__(self, planner: TrainVehicle, conf: Namespace):
-        Supervisor.__init__(self, conf)
+    def __init__(self, planner: TrainVehicle, conf: Namespace, map_name: str):
+        Supervisor.__init__(self, conf, map_name)
 
         self.planner = planner
         self.intervention_mag = 0
@@ -257,10 +257,10 @@ def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
         return True # safe state
 
 
-
+#TODO: remove this class
 class TrackKernel:
-    def __init__(self, sim_conf, plotting=False):
-        map_name = "columbia_small"
+    def __init__(self, sim_conf, map_name, plotting=False):
+        # map_name = "columbia_small"
         kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_viab_{map_name}.npy"
         self.kernel = np.load(kernel_name)
 
@@ -272,7 +272,7 @@ class TrackKernel:
         self.n_modes = self.m.n_modes
 
         
-        file_name = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/' + sim_conf.map_name + '.yaml'
+        file_name = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/' + map_name + '.yaml'
         with open(file_name) as file:
             documents = yaml.full_load(file)
             yaml_file = dict(documents.items())

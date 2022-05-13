@@ -11,18 +11,25 @@ from safety_system_ros.utils.util_functions import *
 
 class TestingNode(BaseNode):
     def __init__(self):
-        conf = load_conf("config_file")
-
-        super().__init__('car_tester', conf)
+        super().__init__('car_tester')
 
         self.declare_parameter('n_laps')
-        self.planner = TestVehicle("SafetyTrainingAgent_3", conf) 
-        # self.planner = RandomPlanner(conf)
-        # self.planner = PurePursuitPlanner(conf)
+        self.declare_parameter('supervision')
+        self.declare_parameter('planner')
+        self.declare_parameter('agent_name')
+        self.declare_parameter('map_name')
 
-        # self.supervision = True 
-        self.supervision = False
-        self.supervisor = Supervisor(conf)
+        map_name = self.get_parameter('map_name').value
+
+        planner_dict = {'pure_pursuit': PurePursuitPlanner(self.conf, map_name),
+                        'random': RandomPlanner(self.conf),
+                        'agent': TestVehicle(self.get_parameter('agent_name').value, self.conf)}
+
+        self.planner = planner_dict[self.get_parameter('planner').value]
+        self.get_logger().info(self.planner.name)
+
+        self.supervision = self.get_parameter('supervision').value
+        self.supervisor = Supervisor(self.conf, map_name)
 
         self.n_laps = self.get_parameter('n_laps').value
         self.get_logger().info(f"Param laps: {self.n_laps}")

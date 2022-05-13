@@ -155,8 +155,7 @@ class TestVehicle(BaseVehicle):
 
         super().__init__(agent_name, sim_conf)
 
-        directory = "/home/benjy/sim_ws/src/safety_system_ros/"
-        self.path = directory  + sim_conf.vehicle_path + agent_name
+        self.path = sim_conf.directory  + sim_conf.vehicle_path + agent_name
         self.actor = torch.load(self.path + '/' + agent_name + "_actor.pth")
 
         print(f"Agent loaded: {agent_name}")

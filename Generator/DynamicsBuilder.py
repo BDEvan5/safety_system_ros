@@ -81,13 +81,9 @@ def build_viability_dynamics(m, conf):
 def build_dynamics_table(sim_conf):
     m = Modes(sim_conf)
 
-    if sim_conf.kernel_mode == "viab":
-        dynamics = build_viability_dynamics(m, sim_conf)
-    else:
-        raise ValueError(f"Unknown kernel mode: {sim_conf.kernel_mode}")
+    dynamics = build_viability_dynamics(m, sim_conf)
 
-
-    np.save(f"{sim_conf.dynamics_path}{sim_conf.kernel_mode}_dyns.npy", dynamics)
+    np.save(f"{sim_conf.dynamics_path}_dyns.npy", dynamics)
 
 from matplotlib.ticker import MultipleLocator
 
