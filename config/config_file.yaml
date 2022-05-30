@@ -35,7 +35,7 @@ lookahead_time_step: 0.2 # Planning timestep used the supervisor
 n_dx: 40                 # number of points per m in discretising the track map
 phi_range: 6.28 # I think this can be removed
 n_phi: 41                # number of points per rotation in discretising vehicle orientation
-track_shrink_pixels: 12   # number of pixels to shrink the track map by
+track_shrink_pixels: 6   # number of pixels to shrink the track map by
 n_intermediate_pts: 3
 
 #-------------------------------------------------------------------------

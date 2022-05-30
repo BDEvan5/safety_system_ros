@@ -67,8 +67,6 @@ class SmartBufferTD3(object):
         return self.ptr
 
 
-nn_l1 = 400
-nn_l2 = 300
 
 class Actor(nn.Module):   
     def __init__(self, state_dim, action_dim, max_action, h_size):

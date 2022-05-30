@@ -10,7 +10,7 @@ from safety_system_ros.utils.util_functions import *
 class BaseVehicle: 
     def __init__(self, agent_name, sim_conf):
         self.name = agent_name
-        self.n_beams = 27
+        self.n_beams = 20
         self.max_v = sim_conf.max_v
         self.speed = sim_conf.vehicle_speed
         self.max_steer = sim_conf.max_steer
@@ -34,6 +34,9 @@ class BaseVehicle:
         v_current = obs['state'][3]
         d_current = obs['state'][4]
         scan = np.array(obs['scan']) 
+        scan = scan[190:-190] # reduce to 700 beams
+        inds = np.arange(0, 700, 35) # slice 20 beams
+        scan = scan[inds]
 
         scan = np.clip(scan/self.range_finder_scale, 0, 1)
 
@@ -69,9 +72,6 @@ class TrainVehicle(BaseVehicle):
 
         self.t_his = TrainHistory(test_params.agent_name, sim_conf, load)
 
-        self.calculate_reward = RefDistanceReward(sim_conf, test_params) 
-        # self.calculate_reward = RefCTHReward(sim_conf) 
-
     def plan(self, obs, add_mem_entry=True):
         nn_obs = self.transform_obs(obs)
         if add_mem_entry:
@@ -93,7 +93,8 @@ class TrainVehicle(BaseVehicle):
 
     def add_memory_entry(self, s_prime, nn_s_prime):
         if self.state is not None:
-            reward = self.calculate_reward(self.state, s_prime)
+            # reward = self.calculate_reward(self.state, s_prime)
+            reward = s_prime['reward']
     
             self.t_his.add_step_data(reward)
 
@@ -104,7 +105,8 @@ class TrainVehicle(BaseVehicle):
         To be called when ep is done.
         """
         nn_s_prime = self.transform_obs(s_prime)
-        reward = self.calculate_reward(self.state, s_prime)
+        reward = s_prime['reward']
+        # reward = self.calculate_reward(self.state, s_prime)
 
         self.t_his.add_step_data(reward)
         self.t_his.lap_done(False)
@@ -121,7 +123,9 @@ class TrainVehicle(BaseVehicle):
         To be called when the supervisor intervenes
         """
         nn_s_prime = self.transform_obs(s_prime)
-        reward = self.calculate_reward(self.state, s_prime)
+        # reward = self.calculate_reward(self.state, s_prime)
+        reward = s_prime['reward'] - 1
+
 
         self.t_his.add_step_data(reward)
 
