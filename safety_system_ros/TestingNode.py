@@ -21,11 +21,6 @@ class TestingNode(BaseNode):
 
         map_name = self.get_parameter('map_name').value
 
-        # planner_dict = {'pure_pursuit': PurePursuitPlanner(self.conf, map_name),
-        #                 'random': RandomPlanner(self.conf),
-        #                 'agent': TestVehicle(self.get_parameter('agent_name').value, self.conf)}
-
-        # self.planner = planner_dict[self.get_parameter('planner').value]
         self.planner = PurePursuitPlanner(self.conf, map_name)
         self.get_logger().info(self.planner.name)
 

@@ -15,5 +15,10 @@ car_tester:
     map_name: "levine_blocked"
     # map_name: "columbia_small"
 
+safety_trainer:
+  ros__parameters: 
+    agent_name: "SafetyTrainingAgent_5"
 
+    map_name: "levine_blocked"
+    # map_name: "columbia_small"
 

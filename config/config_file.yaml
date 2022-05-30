@@ -17,7 +17,7 @@ vehicle_speed: 2          # speed at which the vehilce is set to travel at
 v_min_plan: 1            # minimum speed for selecting a steering angle to prevent instability
 lookahead: 1
 range_finder_scale: 5
-h_zise: 100
+h_size: 100
 
 #-------------------------------------------------------------------------
 

@@ -23,10 +23,7 @@ from safety_system_ros.Supervisor import Supervisor
 class BaseNode(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
-        self.declare_parameter('config_filename')
-        config_filename = self.get_parameter('config_filename').value
-        self.conf = load_conf(config_filename)
-
+        self.conf = load_conf("config_file") 
         
         # abstract variables
         self.planner = None
@@ -38,7 +35,7 @@ class BaseNode(Node):
         self.velocity = 0
         self.theta = 0
         self.steering_angle = 0.0
-        self.scan = np.zeros(27) # move to param file
+        self.scan = None # move to param file
 
         self.lap_counts = 0
         self.lap_times = 0.0 
@@ -79,9 +76,11 @@ class BaseNode(Node):
         self.theta = copy(theta)
 
     def scan_callback(self, msg):
+        # self.get_logger().info(f"Scan Callback: {msg}")
         scan = np.array(msg.ranges)
-        inds = np.arange(0, 1080, 40)
-        scan = scan[inds]
+        # scan = scan[190:-190]
+        # inds = np.arange(0, 700, 35)
+        # scan = scan[inds]
 
         self.scan = scan
 
@@ -110,6 +109,7 @@ class BaseNode(Node):
             self.lap_done()
         
         observation = self.build_observation()
+        # self.get_logger().info("Observation: {}".format(observation))
 
         action = self.calculate_action(observation)
 
@@ -148,6 +148,8 @@ class BaseNode(Node):
         """
         observation = {}
         observation["scan"] = self.scan
+        if observation["scan"] is None: observation["scan"] = np.zeros(1080)
+        # self.get_logger().info(f"Scan: {self.scan}")
         observation['linear_vel_x'] = self.velocity #TODO: deprecate this
         observation['steering_delta'] = self.steering_angle #! this is duyplication
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle])

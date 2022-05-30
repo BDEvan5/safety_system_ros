@@ -9,10 +9,17 @@ import yaml
 def generate_launch_description():
     ld = LaunchDescription()
 
+    config = os.path.join(
+        "/home/benjy/sim_ws/src/safety_system_ros/",
+        'config',
+        'testing_params.yaml'
+    )
+
     testing_node = Node(
         package='safety_system_ros',
         executable='safety_trainer',
-        name='safety_trainer'
+        name='safety_trainer',
+        parameters=[config]
     )
 
     ld.add_action(testing_node)

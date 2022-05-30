@@ -20,11 +20,21 @@ from safety_system_ros.BaseNode import BaseNode
 
 class SafetyTrainer(BaseNode):
     def __init__(self):
-        conf = load_conf("config_file")
-        super().__init__("safety_trainer", conf)
+        super().__init__("safety_trainer")
+        self.declare_parameter('agent_name')
+        self.declare_parameter('map_name')
 
-        self.planner = TrainVehicle("SafetyTrainingAgent_3", conf) 
-        self.supervisor = LearningSupervisor(self.planner, conf)
+
+        test_params = {} # internal for parameters
+        test_params['agent_name'] = self.get_parameter('agent_name').value
+        map_name = self.get_parameter('map_name').value
+
+        test_params = Namespace(**test_params)
+
+        # self.get_logger().info(f"Agent name: {test_params.agent_name}")
+
+        self.planner = TrainVehicle(self.conf, test_params) 
+        self.supervisor = LearningSupervisor(self.planner, self.conf, map_name)
 
         self.n_laps = 8
 
