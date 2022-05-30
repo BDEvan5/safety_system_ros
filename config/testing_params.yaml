@@ -4,15 +4,16 @@ car_tester:
   ros__parameters:
     config_filename: "config_file"
     n_laps: 1
-    supervision: True
-    # supervision: False
+    # supervision: True
+    supervision: False
     # planner: pure_pursuit 
     planner: random 
     # planner: agent 
 
-    agent_name: "SafetyTrainingAgent_3"
+    agent_name: "SafetyTrainingAgent_5"
 
-    map_name: "columbia_small"
+    map_name: "levine_blocked"
+    # map_name: "columbia_small"
 
 
 

@@ -21,15 +21,16 @@ class TestingNode(BaseNode):
 
         map_name = self.get_parameter('map_name').value
 
-        planner_dict = {'pure_pursuit': PurePursuitPlanner(self.conf, map_name),
-                        'random': RandomPlanner(self.conf),
-                        'agent': TestVehicle(self.get_parameter('agent_name').value, self.conf)}
+        # planner_dict = {'pure_pursuit': PurePursuitPlanner(self.conf, map_name),
+        #                 'random': RandomPlanner(self.conf),
+        #                 'agent': TestVehicle(self.get_parameter('agent_name').value, self.conf)}
 
-        self.planner = planner_dict[self.get_parameter('planner').value]
+        # self.planner = planner_dict[self.get_parameter('planner').value]
+        self.planner = PurePursuitPlanner(self.conf, map_name)
         self.get_logger().info(self.planner.name)
 
         self.supervision = self.get_parameter('supervision').value
-        self.supervisor = Supervisor(self.conf, map_name)
+        # self.supervisor = Supervisor(self.conf, map_name)
 
         self.n_laps = self.get_parameter('n_laps').value
         self.get_logger().info(f"Param laps: {self.n_laps}")

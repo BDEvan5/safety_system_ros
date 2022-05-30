@@ -55,10 +55,10 @@ def find_reward(s_p):
 
 # Track base
 class TrackPtsBase:
-    def __init__(self, config) -> None:
+    def __init__(self, config, params) -> None:
         self.wpts = None
         self.ss = None
-        self.map_name = config.map_name
+        self.map_name = params.map_name
         self.directory = config.directory
         self.total_s = None
 
@@ -144,8 +144,8 @@ class TrackPtsBase:
 
 
 class RefDistanceReward(TrackPtsBase):
-    def __init__(self, config) -> None:
-        TrackPtsBase.__init__(self, config)
+    def __init__(self, config, params) -> None:
+        TrackPtsBase.__init__(self, config, params)
 
         # self.load_reference_pts()
         self.load_center_pts()

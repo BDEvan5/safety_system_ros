@@ -139,10 +139,17 @@ class BaseNode(Node):
         self.drive_publisher.publish(drive_msg)
 
     def build_observation(self):
+        """
+        Observation:
+            scan: LiDAR scan 
+            state: [pose_x, pose_y, theta, velocity, steering angle]
+            reward: 0 - created here to store the reward later
+        
+        """
         observation = {}
         observation["scan"] = self.scan
-        observation['linear_vel_x'] = self.velocity
-        observation['steering_delta'] = self.steering_angle
+        observation['linear_vel_x'] = self.velocity #TODO: deprecate this
+        observation['steering_delta'] = self.steering_angle #! this is duyplication
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle])
         observation['state'] = state
         observation['reward'] = 0.0

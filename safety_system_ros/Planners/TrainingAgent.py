@@ -31,8 +31,8 @@ class BaseVehicle:
         Returns:
             nn_obs: observation vector for neural network
         """
-        v_current = obs['linear_vel_x']
-        d_current = obs['steering_delta']
+        v_current = obs['state'][3]
+        d_current = obs['state'][4]
         scan = np.array(obs['scan']) 
 
         scan = np.clip(scan/self.range_finder_scale, 0, 1)
@@ -52,14 +52,14 @@ class BaseVehicle:
         return action
 
 class TrainVehicle(BaseVehicle):
-    def __init__(self, agent_name, sim_conf, load=False):
-        super().__init__(agent_name, sim_conf)
+    def __init__(self, sim_conf, test_params, load=False):
+        super().__init__(test_params.agent_name, sim_conf)
 
-        self.path = sim_conf.directory + sim_conf.vehicle_path + agent_name 
+        self.path = sim_conf.directory + sim_conf.vehicle_path + test_params.agent_name 
         init_file_struct(self.path)
 
         state_space = 2 + self.n_beams
-        self.agent = TD3(state_space, 1, 1, agent_name)
+        self.agent = TD3(state_space, 1, 1, test_params.agent_name)
         self.agent.try_load(load, sim_conf.h_size, self.path)
 
         self.state = None
@@ -67,9 +67,9 @@ class TrainVehicle(BaseVehicle):
         self.nn_act = None
         self.action = None
 
-        self.t_his = TrainHistory(agent_name, sim_conf, load)
+        self.t_his = TrainHistory(test_params.agent_name, sim_conf, load)
 
-        self.calculate_reward = RefDistanceReward(sim_conf) 
+        self.calculate_reward = RefDistanceReward(sim_conf, test_params) 
         # self.calculate_reward = RefCTHReward(sim_conf) 
 
     def plan(self, obs, add_mem_entry=True):
@@ -77,7 +77,7 @@ class TrainVehicle(BaseVehicle):
         if add_mem_entry:
             self.add_memory_entry(obs, nn_obs)
             
-        if obs['linear_vel_x'] < self.v_min_plan:
+        if obs['state'][3] < self.v_min_plan:
             self.action = np.array([0, 7])
             return self.action
 
@@ -140,7 +140,7 @@ class TrainVehicle(BaseVehicle):
 
 
 class TestVehicle(BaseVehicle):
-    def __init__(self, agent_name, sim_conf):
+    def __init__(self, sim_conf, test_params):
         """
         Testing vehicle using the reference modification navigation stack
 
@@ -150,17 +150,17 @@ class TestVehicle(BaseVehicle):
             mod_conf: namespace with modification planner parameters
         """
 
-        super().__init__(agent_name, sim_conf)
+        super().__init__(test_params.agent_name, sim_conf)
 
-        self.path = sim_conf.directory  + sim_conf.vehicle_path + agent_name
-        self.actor = torch.load(self.path + '/' + agent_name + "_actor.pth")
+        self.path = sim_conf.directory  + sim_conf.vehicle_path + test_params.agent_name
+        self.actor = torch.load(self.path + '/' + test_params.agent_name + "_actor.pth")
 
-        print(f"Agent loaded: {agent_name}")
+        print(f"Agent loaded: {test_params.agent_name}")
 
     def plan(self, obs):
         nn_obs = self.transform_obs(obs)
 
-        if obs['linear_vel_x'] < self.v_min_plan:
+        if obs['state'][3] < self.v_min_plan:
             self.action = np.array([0, 7])
             return self.action
 

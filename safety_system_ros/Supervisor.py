@@ -32,8 +32,6 @@ class RandomPlanner:
 
 class Supervisor:
     def __init__(self, conf, map_name):
-        
-        conf = load_conf("config_file")
         self.d_max = 0.4
         self.kernel = TrackKernel(conf, map_name, True)
 
@@ -91,7 +89,7 @@ class LearningSupervisor(Supervisor):
 
         self.planner = planner
         self.intervention_mag = 0
-        self.constant_reward = conf.constant_reward
+        self.constant_reward = 1
         self.ep_interventions = 0
         self.intervention_list = []
         self.lap_times = []
@@ -261,7 +259,7 @@ def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
 class TrackKernel:
     def __init__(self, sim_conf, map_name, plotting=False):
         # map_name = "columbia_small"
-        kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_viab_{map_name}.npy"
+        kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_{map_name}.npy"
         self.kernel = np.load(kernel_name)
 
         self.plotting = plotting

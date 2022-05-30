@@ -7,10 +7,11 @@ import numpy as np
 from numba import njit
 
 class PurePursuitPlanner:
-    def __init__(self, conf, map_name):
+    def __init__(self, conf, test_params):
         self.name = "PurePursuitPlanner"
 
-        self.trajectory = Trajectory(map_name)
+
+        self.trajectory = Trajectory(test_params)
         # self.trajectory.show_pts()
 
         self.lookahead = conf.lookahead
