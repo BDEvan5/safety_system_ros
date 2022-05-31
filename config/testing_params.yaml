@@ -6,9 +6,6 @@ car_tester:
     n_laps: 1
     # supervision: True
     supervision: False
-    # planner: pure_pursuit 
-    planner: random 
-    # planner: agent 
 
     agent_name: "SafetyTrainingAgent_5"
 
