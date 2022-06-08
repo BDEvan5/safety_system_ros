@@ -2,22 +2,22 @@
 
 car_tester:
   ros__parameters:
-    config_filename: "config_file"
+    map_name: "columbia_small"
     n_laps: 10
     # supervision: True
     supervision: False
 
-    agent_name: "SafetyTrainingAgent_5"
+    agent_name: "TestingAgent_1"
 
     # map_name: "levine_blocked"
-    map_name: "columbia_small"
 
 safety_trainer:
   ros__parameters: 
-    agent_name: "SafetyTrainingAgent_5"
+    agent_name: "TestingAgent_1"
 
     # map_name: "levine_blocked"
     map_name: "columbia_small"
+    n_laps: 3
 
 pure_pursuit:
   ros__parameters: 

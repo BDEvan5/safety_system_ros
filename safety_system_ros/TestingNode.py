@@ -24,7 +24,6 @@ class TestingNode(BaseNode):
 
         self.planner = PurePursuitPlanner(self.conf, map_name)
         self.get_logger().info(self.planner.name)
-        time.sleep(1)
         self.get_logger().info(str(self.planner.trajectory.waypoints))
 
         self.supervision = self.get_parameter('supervision').value

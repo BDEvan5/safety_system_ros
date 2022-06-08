@@ -23,22 +23,20 @@ class SafetyTrainer(BaseNode):
         super().__init__("safety_trainer")
         self.declare_parameter('agent_name')
         self.declare_parameter('map_name')
+        self.declare_parameter('n_laps')
 
 
-        test_params = {} # internal for parameters
-        test_params['agent_name'] = self.get_parameter('agent_name').value
+        agent_name = self.get_parameter('agent_name').value
         map_name = self.get_parameter('map_name').value
+        self.n_laps = self.get_parameter('n_laps').value
 
-        test_params = Namespace(**test_params)
-
-        # self.get_logger().info(f"Agent name: {test_params.agent_name}")
-
-        self.planner = TrainVehicle(self.conf, test_params) 
+        self.planner = TrainVehicle(self.conf, agent_name) 
         self.supervisor = LearningSupervisor(self.planner, self.conf, map_name)
 
-        self.n_laps = 8
-
+        # this is the asyn training frequency: consider making parameter
         self.training_timer = self.create_timer(0.1, self.training_callback)
+
+        self.get_logger().info("SafetyTrainer initialized")
 
     def training_callback(self):
         self.planner.agent.train(2)
@@ -55,7 +53,7 @@ class SafetyTrainer(BaseNode):
         self.supervisor.save_intervention_list()
 
     def lap_complete_callback(self):
-        print(f"Interventions: {self.supervisor.ep_interventions}")
+        self.get_logger().info(f"Interventions: {self.supervisor.ep_interventions}")
         self.supervisor.lap_complete(self.current_lap_time)
 
 def main(args=None):

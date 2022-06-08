@@ -56,16 +56,14 @@ class BaseVehicle:
         return action
 
 class TrainVehicle(BaseVehicle):
-    def __init__(self, sim_conf, test_params, load=False):
-        super().__init__(test_params.agent_name, sim_conf)
+    def __init__(self, sim_conf, agent_name, load=False):
+        super().__init__(agent_name, sim_conf)
 
-        print(f"{sim_conf}")
-        print(f"{test_params}")
-        self.path = sim_conf.directory + sim_conf.vehicle_path + test_params.agent_name 
+        self.path = sim_conf.directory + sim_conf.vehicle_path + agent_name 
         init_file_struct(self.path)
 
         state_space = 2 + self.n_beams
-        self.agent = TD3(state_space, 1, 1, test_params.agent_name)
+        self.agent = TD3(state_space, 1, 1, agent_name)
         self.agent.try_load(load, sim_conf.h_size, self.path)
 
         self.state = None
@@ -73,7 +71,7 @@ class TrainVehicle(BaseVehicle):
         self.nn_act = None
         self.action = None
 
-        self.t_his = TrainHistory(test_params.agent_name, sim_conf, load)
+        self.t_his = TrainHistory(agent_name, sim_conf, load)
 
     def plan(self, obs, add_mem_entry=True):
         nn_obs = self.transform_obs(obs)

@@ -18,7 +18,7 @@ v_min_plan: 1            # minimum speed for selecting a steering angle to preve
 lookahead: 1
 range_finder_scale: 5
 h_size: 100
-simulation_time: 0.2
+simulation_time: 0.1
 
 #-------------------------------------------------------------------------
 

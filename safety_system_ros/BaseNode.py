@@ -38,9 +38,9 @@ class BaseNode(Node):
         self.scan = None # move to param file
 
         self.lap_counts = 0
-        self.lap_times = 0.0 
         self.toggle_list = 0
         self.near_start = True
+        self.lap_start_time = time.time()
         self.current_lap_time = 0.0
         self.running = False
 
@@ -85,7 +85,8 @@ class BaseNode(Node):
         self.scan = scan
 
     def lap_done(self):
-        print(f"Run {self.lap_count} Complete in time: {self.current_lap_time}")
+        self.current_lap_time = time.time() - self.lap_start_time
+        self.get_logger().info(f"Run {self.lap_count} Complete in time: {self.current_lap_time}")
         self.lap_complete_callback()
 
         self.lap_count += 1
@@ -100,6 +101,7 @@ class BaseNode(Node):
         self.num_toggles = 0
         self.near_start = True
         self.toggle_list = 0
+        self.lap_start_time = time.time()
 
     def drive_callback(self):
         if not self.running:
@@ -109,13 +111,10 @@ class BaseNode(Node):
             self.lap_done()
         
         observation = self.build_observation()
-        # self.get_logger().info("Observation: {}".format(observation))
 
         action = self.calculate_action(observation)
 
         self.send_drive_message(action)
-
-        self.current_lap_time += 0.03 #this might be inaccurate due to processing
 
     @abstractmethod
     def calculate_action(self, observation):
@@ -126,7 +125,7 @@ class BaseNode(Node):
 
     @abstractmethod
     def save_data_callback(self):
-        print("No extra data to save")
+        self.get_logger().info("No extra data to save")
 
     @abstractmethod
     def lap_complete_callback(self):
@@ -149,9 +148,8 @@ class BaseNode(Node):
         observation = {}
         observation["scan"] = self.scan
         if observation["scan"] is None: observation["scan"] = np.zeros(1080)
-        # self.get_logger().info(f"Scan: {self.scan}")
-        observation['linear_vel_x'] = self.velocity #TODO: deprecate this
-        observation['steering_delta'] = self.steering_angle #! this is duyplication
+        # observation['linear_vel_x'] = self.velocity #TODO: deprecate this
+        # observation['steering_delta'] = self.steering_angle #! this is duyplication
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle])
         observation['state'] = state
         observation['reward'] = 0.0
@@ -169,7 +167,7 @@ class BaseNode(Node):
         delta_pt = np.dot(start_rot, np.stack((poses_x, poses_y), axis=0))
 
         dist2 = delta_pt[0]**2 + delta_pt[1]**2
-        closes = dist2 <= 0.2
+        closes = dist2 <= 1
         if closes and not self.near_start:
             self.near_start = True
             self.toggle_list += 1
@@ -178,11 +176,9 @@ class BaseNode(Node):
             self.toggle_list += 1
             # print(self.toggle_list)
         self.lap_counts = self.toggle_list // 2
-        if self.toggle_list < 4:
-            self.lap_times = self.current_lap_time
         
         done = self.toggle_list >= 2
-
+        
         return done
 
     def ego_reset(self):
@@ -197,7 +193,7 @@ class BaseNode(Node):
 
         self.ego_reset_pub.publish(msg)
 
-        print("Finished Resetting")
+        self.get_logger().info("Finished Resetting")
 
     def run_lap(self):
         if self.planner == None:
