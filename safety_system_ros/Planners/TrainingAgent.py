@@ -145,7 +145,7 @@ class TrainVehicle(BaseVehicle):
 
 
 class TestVehicle(BaseVehicle):
-    def __init__(self, sim_conf, test_params):
+    def __init__(self, sim_conf, agent_name):
         """
         Testing vehicle using the reference modification navigation stack
 
@@ -155,12 +155,12 @@ class TestVehicle(BaseVehicle):
             mod_conf: namespace with modification planner parameters
         """
 
-        super().__init__(test_params.agent_name, sim_conf)
+        super().__init__(agent_name, sim_conf)
 
-        self.path = sim_conf.directory  + sim_conf.vehicle_path + test_params.agent_name
-        self.actor = torch.load(self.path + '/' + test_params.agent_name + "_actor.pth")
+        self.path = sim_conf.directory  + sim_conf.vehicle_path + agent_name
+        self.actor = torch.load(self.path + '/' + agent_name + "_actor.pth")
 
-        print(f"Agent loaded: {test_params.agent_name}")
+        print(f"Agent loaded: {agent_name}")
 
     def plan(self, obs):
         nn_obs = self.transform_obs(obs)

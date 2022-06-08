@@ -2,13 +2,13 @@
 
 car_tester:
   ros__parameters:
-    map_name: "columbia_small"
-    n_laps: 10
+    n_laps: 2
     # supervision: True
     supervision: False
 
     agent_name: "TestingAgent_1"
 
+    map_name: "columbia_small"
     # map_name: "levine_blocked"
 
 safety_trainer:
