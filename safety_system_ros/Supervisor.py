@@ -259,7 +259,10 @@ def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
 class TrackKernel:
     def __init__(self, sim_conf, map_name, plotting=False):
         # map_name = "columbia_small"
-        kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_{map_name}.npy"
+        if sim_conf.steering:
+            kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_std_{map_name}.npy"
+        else:
+            kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_filter_{map_name}.npy"
         self.kernel = np.load(kernel_name)
 
         self.plotting = plotting

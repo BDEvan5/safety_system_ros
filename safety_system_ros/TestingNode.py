@@ -43,16 +43,6 @@ class TestingNode(BaseNode):
         print(f"Lap complee: {self.current_lap_time}")
         # print(f"Interventions: {self.supervisor.interventions}")
 
-class RandomPlanner:
-    def __init__(self, conf, name="RandoPlanner"):
-        self.d_max = conf.max_steer # radians  
-        self.name = name
-        self.speed = conf.vehicle_speed
-
-    def plan(self, pos):
-        steering = np.random.uniform(-self.d_max, self.d_max)
-        return np.array([steering, self.speed])
-
 
 
 def main(args=None):

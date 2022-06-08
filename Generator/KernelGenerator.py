@@ -12,7 +12,7 @@ from DynamicsBuilder import build_dynamics_table
 
 class KernelGenerator:
     def __init__(self, track_img, sim_conf):
-        self.track_img = track_img
+        self.track_img = np.array(track_img, dtype=bool)
         self.sim_conf = sim_conf
         self.n_dx = int(sim_conf.n_dx)
         self.t_step = sim_conf.kernel_time_step
@@ -29,7 +29,7 @@ class KernelGenerator:
         self.n_modes = sim_conf.nq_steer 
         self.qs = np.linspace(-self.max_steer, self.max_steer, self.n_modes)
 
-        self.o_map = np.copy(self.track_img)    
+        self.o_map = np.copy(track_img)    
         self.fig, self.axs = plt.subplots(2, 2)
 
         self.kernel = np.ones((self.n_x, self.n_y, self.n_phi, self.n_modes), dtype=bool)
@@ -37,15 +37,15 @@ class KernelGenerator:
 
         self.track_img = np.array(self.track_img, dtype=bool)
         self.kernel *= self.track_img[:, :, None, None] 
-        # self.kernel[:, :, :, :] = self.track_img[:, :, None, None] * np.ones((self.n_x, self.n_y, self.n_phi, self.n_modes), dtype=bool)
         
         self.dynamics = np.load(f"{sim_conf.dynamics_path}_dyns.npy")
         print(f"Dynamics Loaded: {self.dynamics.shape}")
 
     def get_filled_kernel(self):
+        prev_filled = np.count_nonzero(self.previous_kernel)
         filled = np.count_nonzero(self.kernel)
         total = self.kernel.size
-        print(f"Filled: {filled} / {total} -> {filled/total}")
+        print(f"Filled: {filled} / {total} -> {filled/total} --> diff: {filled-prev_filled}")
         return filled/total
 
     def view_kernel_angles(self, show=True):
@@ -69,7 +69,6 @@ class KernelGenerator:
         self.axs[1, 1].set_title(f"Kernel phi: {self.phis[quarter_phi]}")
 
         plt.pause(0.0001)
-        # plt.pause(1)
 
         if show:
             plt.show()
@@ -87,6 +86,25 @@ class KernelGenerator:
             self.get_filled_kernel()
 
         return self.get_filled_kernel()
+
+    def filter_kernel(self):
+        print(f"Starting to filter: {np.count_nonzero(self.kernel)} --> {self.kernel.shape}")
+        xs, ys, ths, ms = self.kernel.shape
+        new_kernel = np.zeros((xs, ys, ths, 1), dtype=bool)
+        self.kernel = filter_kernel(self.kernel, new_kernel)
+        print(f"finished filtering: {np.count_nonzero(self.kernel)} --> {self.kernel.shape}")
+
+
+@njit(cache=True)
+def filter_kernel(kernel, new_kernel):
+    xs, ys, ths, ms = kernel.shape
+    assert ms > 2, "Single Use kernels..."
+    for i in range(xs):
+        for j in range(ys):
+            for k in range(ths):
+                new_kernel[i, j, k, 0] = kernel[i, j, k, :].any()
+            
+    return new_kernel
 
 
 
@@ -180,88 +198,8 @@ def shrink_img(img, n_shrinkpx):
                         img[j, k] = 1.
                         break
 
-    print(f"Finished Shrinking")
+    print(f"Finished Shrinking Track Edges")
     return o_img, img #
-
-
-class VeiwKernel:
-    def __init__(self, conf, track_img):
-        kernel_name = f"{conf.kernel_path}Kernel_{conf.map_name}.npy"
-        self.kernel = np.load(kernel_name)
-
-        self.o_map = np.copy(track_img)    
-        self.fig, self.axs = plt.subplots(2, 2)
-
-        
-        self.phis = np.linspace(-conf.phi_range/2, conf.phi_range/2, conf.n_phi)
-
-        self.qs = np.linspace(-conf.max_steer, conf.max_steer, conf.nq_steer)
-        self.view_speed_build(True)
-     
-    def view_speed_build(self, show=True):
-        self.axs[0, 0].cla()
-        self.axs[1, 0].cla()
-        self.axs[0, 1].cla()
-        self.axs[1, 1].cla()
-
-        phi_ind = int(len(self.phis)/2)
-
-        inds = np.array([3, 4, 7, 8], dtype=int)
-
-        self.axs[0, 0].imshow(self.kernel[:, :, phi_ind, inds[0]].T + self.o_map.T, origin='lower')
-        self.axs[0, 0].set_title(f"Kernel Mode: {self.qs[inds[0]]}")
-        self.axs[1, 0].imshow(self.kernel[:, :, phi_ind, inds[1]].T + self.o_map.T, origin='lower')
-        self.axs[1, 0].set_title(f"Kernel Mode: {self.qs[inds[1]]}")
-        self.axs[0, 1].imshow(self.kernel[:, :, phi_ind, inds[2]].T + self.o_map.T, origin='lower')
-        self.axs[0, 1].set_title(f"Kernel Mode: {self.qs[inds[2]]}")
-
-        self.axs[1, 1].imshow(self.kernel[:, :, phi_ind, inds[3]].T + self.o_map.T, origin='lower')
-        self.axs[1, 1].set_title(f"Kernel Mode: {self.qs[inds[3]]}")
-
-        plt.pause(0.0001)
-        plt.pause(1)
-
-        if show:
-            plt.show()
-        
-    def make_picture(self, show=True):
-        self.axs[0, 0].cla()
-        self.axs[1, 0].cla()
-        self.axs[0, 1].cla()
-        self.axs[1, 1].cla()
-
-        half_phi = int(len(self.phis)/2)
-        quarter_phi = int(len(self.phis)/4)
-
-
-        self.axs[0, 0].set(xticks=[])
-        self.axs[0, 0].set(yticks=[])
-        self.axs[1, 0].set(xticks=[])
-        self.axs[1, 0].set(yticks=[])
-        self.axs[0, 1].set(xticks=[])
-        self.axs[0, 1].set(yticks=[])
-        self.axs[1, 1].set(xticks=[])
-        self.axs[1, 1].set(yticks=[])
-
-        self.axs[0, 0].imshow(self.kernel[:, :, 0].T + self.o_map.T, origin='lower')
-        self.axs[1, 0].imshow(self.kernel[:, :, half_phi].T + self.o_map.T, origin='lower')
-        self.axs[0, 1].imshow(self.kernel[:, :, -quarter_phi].T + self.o_map.T, origin='lower')
-        self.axs[1, 1].imshow(self.kernel[:, :, quarter_phi].T + self.o_map.T, origin='lower')
-        
-        plt.pause(0.0001)
-        plt.pause(1)
-        plt.savefig(f"{self.sim_conf.kernel_path}Kernel_build.svg")
-
-        if show:
-            plt.show()
-
-    def save_kernel(self, name):
-
-        self.view_speed_build(False)
-        plt.savefig(f"{self.sim_conf.kernel_path}KernelSpeed_{name}_.png")
-
-        self.view_angle_build(False)
-        plt.savefig(f"{self.sim_conf.kernel_path}KernelAngle_{name}.png")
 
 
 def build_track_kernel(conf):
@@ -271,7 +209,13 @@ def build_track_kernel(conf):
     kernel.view_kernel_angles(False)
     kernel.calculate_kernel(100)
 
-    name = f"Kernel_{conf.map_name}"
+    name = f"Kernel_std_{conf.map_name}"
+    np.save(f"{conf.kernel_path}{name}.npy", kernel.kernel)
+    print(f"Saved kernel to file: {name}")
+
+    kernel.filter_kernel()
+
+    name = f"Kernel_filter_{conf.map_name}"
     np.save(f"{conf.kernel_path}{name}.npy", kernel.kernel)
     print(f"Saved kernel to file: {name}")
 
@@ -280,17 +224,11 @@ def generate_kernels():
     conf = load_conf("config_file")
     build_dynamics_table(conf)
 
-    conf.map_name = "levine_blocked"
-    # conf.map_name = "columbia_small"
+    # conf.map_name = "levine_blocked"
+    conf.map_name = "columbia_small"
     # conf.map_name = "f1_aut_wide"
     build_track_kernel(conf)
 
-
-def view_kernel():
-    conf = load_conf("config_file")
-    img = prepare_track_img(conf) 
-    img, img2 = shrink_img(img, 5)
-    k = VeiwKernel(conf, img2)
 
 if __name__ == "__main__":
 
@@ -299,6 +237,5 @@ if __name__ == "__main__":
 
     generate_kernels()
 
-    # view_kernel()
 
 

@@ -6,17 +6,7 @@ import time
 import numpy as np
 
 from safety_system_ros.utils.util_functions import *
-
-class RandomPlanner:
-    def __init__(self, conf, name="RandoPlanner"):
-        self.d_max = conf.max_steer # radians  
-        self.name = name
-        self.speed = conf.vehicle_speed
-
-    def plan(self, pos):
-        steering = np.random.uniform(-self.d_max, self.d_max)
-        return np.array([steering, self.speed])
-
+from safety_system_ros.Planners.RandomPlanner import RandomPlanner
 
 
 class TestingNode(BaseNode):
