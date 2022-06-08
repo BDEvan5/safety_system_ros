@@ -48,7 +48,7 @@ class BaseNode(Node):
         self.n_laps = None
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        self.cmd_timer = self.create_timer(0.4, self.drive_callback)
+        self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
 
         self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 

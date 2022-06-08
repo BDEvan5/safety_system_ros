@@ -19,3 +19,19 @@ safety_trainer:
     # map_name: "levine_blocked"
     map_name: "columbia_small"
 
+pure_pursuit:
+  ros__parameters: 
+    map_name: "columbia_small"
+    n_laps: 10
+    
+    supervision: True
+    # supervision: False
+
+
+gap_follow:
+  ros__parameters: 
+    map_name: "columbia_small"
+    n_laps: 10
+    
+    supervision: True
+    # supervision: False

@@ -30,6 +30,8 @@ setup(
         'console_scripts': [
             'car_tester=safety_system_ros.TestingNode:main',
             'safety_trainer=safety_system_ros.SafetyTrainer:main',
+            'pure_pursuit=safety_system_ros.PurePursuitNode:main',
+            'gap_follow=safety_system_ros.GapFollow:main',
         ],
     },
 )
