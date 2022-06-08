@@ -1,0 +1,43 @@
+
+# Vehicle params
+max_v: 7
+max_a: 8.5
+max_steer: 0.4
+max_d_dot: 3.2
+mu: 0.523
+m: 3.47
+g: 9.81
+l_r: 0.171
+l_f: 0.158
+
+#-------------------------------------------------------------------------
+
+# tuneable parameters
+vehicle_speed: 4          # speed at which the vehilce is set to travel at
+v_min_plan: 1            # minimum speed for selecting a steering angle to prevent instability
+lookahead: 1
+range_finder_scale: 5
+h_size: 100
+simulation_time: 0.1
+
+#-------------------------------------------------------------------------
+
+#save_paths
+directory: "/home/benjy/sim_ws/src/safety_system_ros/"
+vehicle_path: "Data/Vehicles/"
+kernel_path: "Data/Kernels/"
+dynamics_path: "Data/Dynamics/"
+
+#-------------------------------------------------------------------------
+# Kernel paramters
+nq_steer: 9              # number of modes for the steering range
+kernel_time_step: 0.3    # Planning timestep used in kernel generation
+lookahead_time_step: 0.3 # Planning timestep used the supervisor
+n_dx: 40                 # number of points per m in discretising the track map
+phi_range: 6.28 # I think this can be removed
+n_phi: 41                # number of points per rotation in discretising vehicle orientation
+track_shrink_pixels: 6   # number of pixels to shrink the track map by
+n_intermediate_pts: 3
+steering: True
+#-------------------------------------------------------------------------
+

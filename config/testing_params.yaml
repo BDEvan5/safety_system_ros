@@ -1,0 +1,45 @@
+# testing
+
+car_tester:
+  ros__parameters:
+    n_laps: 2
+    # supervision: True
+    supervision: False
+
+    agent_name: "TestingAgent_1"
+
+    map_name: "columbia_small"
+    # map_name: "levine_blocked"
+
+safety_trainer:
+  ros__parameters: 
+    agent_name: "TestingAgent_1"
+
+    # map_name: "levine_blocked"
+    map_name: "columbia_small"
+    n_laps: 3
+
+pure_pursuit:
+  ros__parameters: 
+    map_name: "columbia_small"
+    n_laps: 10
+    
+    supervision: True
+    # supervision: False
+
+
+gap_follow:
+  ros__parameters: 
+    map_name: "columbia_small"
+    n_laps: 10
+    
+    supervision: True
+    # supervision: False
+
+
+rando_plan:
+  ros__parameters: 
+    n_laps: 10
+    map_name: "columbia_small" # for supervisor
+    
+
