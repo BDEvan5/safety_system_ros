@@ -4,6 +4,7 @@ from safety_system_ros.Planners.TrainingAgent import TestVehicle
 from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
 
 import rclpy
+import time
 import numpy as np
 
 from safety_system_ros.utils.util_functions import *
@@ -23,6 +24,8 @@ class TestingNode(BaseNode):
 
         self.planner = PurePursuitPlanner(self.conf, map_name)
         self.get_logger().info(self.planner.name)
+        time.sleep(1)
+        self.get_logger().info(str(self.planner.trajectory.waypoints))
 
         self.supervision = self.get_parameter('supervision').value
         # self.supervisor = Supervisor(self.conf, map_name)
@@ -37,7 +40,8 @@ class TestingNode(BaseNode):
         return action
 
     def lap_complete_callback(self):
-        print(f"Interventions: {self.supervisor.interventions}")
+        print(f"Lap complee: {self.current_lap_time}")
+        # print(f"Interventions: {self.supervisor.interventions}")
 
 class RandomPlanner:
     def __init__(self, conf, name="RandoPlanner"):

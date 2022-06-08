@@ -9,7 +9,7 @@ from numba import njit
 class PurePursuitPlanner:
     def __init__(self, conf, test_params):
         self.name = "PurePursuitPlanner"
-
+        
 
         self.trajectory = Trajectory(test_params)
         # self.trajectory.show_pts()

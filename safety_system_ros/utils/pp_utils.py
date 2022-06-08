@@ -155,8 +155,6 @@ class Trajectory:
         self.map_name = map_name
         self.waypoints = None
         self.vs = None
-        self.load_csv_track()
-        self.n_wpts = len(self.waypoints)
 
         self.max_reacquire = 20
 
@@ -164,6 +162,9 @@ class Trajectory:
         self.l2s = None 
         self.ss = None 
         self.o_points = None
+        self.traj_name = "Not set yet"
+        self.load_csv_track()
+        self.n_wpts = len(self.waypoints)
 
     def load_csv_track(self):
         track = []
@@ -195,6 +196,7 @@ class Trajectory:
         # self.show_trajectory()
 
         self._expand_wpts()
+        self.traj_name = filename
 
     def _expand_wpts(self):
         n = 5 # number of pts per orig pt 
