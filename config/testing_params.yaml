@@ -35,3 +35,11 @@ gap_follow:
     
     supervision: True
     # supervision: False
+
+
+rando_plan:
+  ros__parameters: 
+    n_laps: 10
+    map_name: "columbia_small" # for supervisor
+    
+

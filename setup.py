@@ -32,6 +32,7 @@ setup(
             'safety_trainer=safety_system_ros.SafetyTrainer:main',
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
+            'rando_plan=safety_system_ros.RandoNode:main',
         ],
     },
 )
