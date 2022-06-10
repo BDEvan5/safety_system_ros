@@ -34,7 +34,7 @@ class BaseVehicle:
         v_current = obs['state'][3]
         d_current = obs['state'][4]
         scan = np.array(obs["scan"]) 
-        print(scan)
+        # print(scan)
         scan = scan[190:-190] # reduce to 700 beams
         inds = np.arange(0, 700, 35) # slice 20 beams
         scan = scan[inds]
@@ -44,7 +44,8 @@ class BaseVehicle:
         cur_v = [v_current/self.max_v]
         cur_d = [d_current/self.max_steer]
 
-        nn_obs = np.concatenate([cur_v, cur_d, scan])
+        nn_obs = scan
+        # nn_obs = np.concatenate([cur_v, cur_d, scan])
 
         return nn_obs
 
@@ -62,7 +63,7 @@ class TrainVehicle(BaseVehicle):
         self.path = sim_conf.directory + sim_conf.vehicle_path + agent_name 
         init_file_struct(self.path)
 
-        state_space = 2 + self.n_beams
+        state_space = self.n_beams # + 2
         self.agent = TD3(state_space, 1, 1, agent_name)
         self.agent.try_load(load, sim_conf.h_size, self.path)
 

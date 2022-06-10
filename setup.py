@@ -18,6 +18,7 @@ setup(
         (os.path.join('share', package_name), glob('safety_system_ros/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'utils'), glob('safety_system_ros/utils/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'Planners'), glob('safety_system_ros/Planners/*.py')),
+        (os.path.join('lib/python3.8/site-packages', package_name, 'Generator'), glob('safety_system_ros/Generator/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

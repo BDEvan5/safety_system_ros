@@ -1,6 +1,3 @@
-import rclpy
-from nav_msgs.msg import Odometry
-from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -14,20 +11,6 @@ import csv
 
 from safety_system_ros.Planners.TrainingAgent import TrainVehicle
 
-class RandomPlanner:
-    def __init__(self, conf, name="RandoPlanner"):
-        self.d_max = conf.max_steer # radians  
-        self.name = name
-        self.speed = conf.vehicle_speed
-
-        # path = os.getcwd() + f"/{conf.vehicle_path}" + self.name 
-        # init_file_struct(path)
-        # self.path = path
-        # np.random.seed(conf.random_seed)
-
-    def plan(self, pos, th):
-        steering = np.random.uniform(-self.d_max, self.d_max)
-        return np.array([steering, self.speed])
 
 
 class Supervisor:
@@ -196,6 +179,19 @@ class Modes:
     def __len__(self): return self.n_modes
 
 
+class SingleMode:
+    def __init__(self, conf) -> None:
+        self.qs = np.array([[0, conf.vehicle_speed]])
+        self.n_modes = 1
+
+    def get_mode_id(self, delta):
+        return 0
+
+    def action2mode(self, action):
+        return self.qs[0]
+
+    def __len__(self): return self.n_modes
+
 
 
 @njit(cache=True)
@@ -261,12 +257,15 @@ class TrackKernel:
         # map_name = "columbia_small"
         if sim_conf.steering:
             kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_std_{map_name}.npy"
+            self.m = Modes(sim_conf)
         else:
             kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_filter_{map_name}.npy"
+            self.m = SingleMode(sim_conf)
         self.kernel = np.load(kernel_name)
 
         self.plotting = plotting
-        self.m = Modes(sim_conf)
+        # if sim_conf.no_steer: self.m = SingleMode(sim_conf)
+        # else:                 self.m = Modes(sim_conf)
         self.resolution = sim_conf.n_dx
         self.phi_range = sim_conf.phi_range
         self.max_steer = sim_conf.max_steer

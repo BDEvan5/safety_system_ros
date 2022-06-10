@@ -198,7 +198,9 @@ class BaseNode(Node):
     def run_lap(self):
         if self.planner == None:
             raise NotImplementedError
+        time.sleep(0.5)
         self.ego_reset()
+        time.sleep(0.5)
 
         self.current_lap_time = 0.0
         self.running = True
