@@ -12,3 +12,5 @@ Data/
 *.nbc
 
 *.pyc
+
+safety_system_ros.egg-info/
