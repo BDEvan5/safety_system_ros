@@ -169,9 +169,9 @@ class Trajectory:
     def load_csv_track(self):
         track = []
         
-        filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
+        # filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
         # filename = os.path.dirname(os.path.abspath(__file__)) +  '/map_data/' + self.map_name + "_centerline.csv"
-        # filename = 'map_data/' + self.map_name + "_opti.csv"
+        filename = f'/home/benjy/sim_ws/src/safety_system_ros/' + 'map_data/' + self.map_name + "_opti.csv"
         with open(filename, 'r') as csvfile:
             csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
         
@@ -182,10 +182,10 @@ class Trajectory:
         print(f"Track Loaded: {filename}")
 
         # these get expanded
-        # self.waypoints = track[:, 1:3]
-        self.waypoints = track[:, 0:2]
-        # self.vs = track[:, 5]
-        self.vs = np.ones_like(track[:, 0])
+        self.waypoints = track[:, 1:3]
+        # self.waypoints = track[:, 0:2]
+        self.vs = track[:, 5]
+        # self.vs = np.ones_like(track[:, 0])
 
         # these don't get expanded
         self.N = len(track)
