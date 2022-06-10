@@ -34,7 +34,7 @@ class BaseVehicle:
         v_current = obs['state'][3]
         d_current = obs['state'][4]
         scan = np.array(obs["scan"]) 
-        print(scan)
+        # print(scan)
         scan = scan[190:-190] # reduce to 700 beams
         inds = np.arange(0, 700, 35) # slice 20 beams
         scan = scan[inds]
