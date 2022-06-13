@@ -7,7 +7,7 @@ import time
 import numpy as np
 
 from safety_system_ros.utils.util_functions import *
-
+from safety_system_ros.utils.LapLogger import LapLogger
 
 class TestingNode(BaseNode):
     def __init__(self):
@@ -23,6 +23,8 @@ class TestingNode(BaseNode):
 
         self.planner = TestVehicle(self.conf, agent_name)
         self.get_logger().info(self.planner.name)
+        self.logger = LapLogger(self.planner.path)
+        self.logger.write_info_log(f"Planner created: {self.planner.name}")
 
         self.supervision = self.get_parameter('supervision').value
         if self.supervision:
@@ -35,6 +37,8 @@ class TestingNode(BaseNode):
         action = self.planner.plan(observation)
         if self.supervision: 
             return self.supervisor.supervise(observation['state'], action)
+        data = f"{action[0]:.2f}, {action[1]:.2f}, {observation['state'][0]}, {observation['state'][1]}, {observation['state'][2]}, {observation['state'][3]}, {observation['state'][4]}"
+        self.logger.write_env_log(data)
         return action
 
     def lap_complete_callback(self):

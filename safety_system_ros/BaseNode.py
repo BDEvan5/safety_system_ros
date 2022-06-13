@@ -15,7 +15,6 @@ from safety_system_ros.utils.Dynamics import *
 from safety_system_ros.utils.util_functions import *
 from copy import copy
 
-from safety_system_ros.Supervisor import Supervisor
 
 
 
@@ -46,6 +45,8 @@ class BaseNode(Node):
 
         self.lap_count = 0 
         self.n_laps = None
+
+        self.logger = None
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
@@ -96,6 +97,8 @@ class BaseNode(Node):
             self.save_data_callback()
             self.ego_reset()
             self.destroy_node()
+
+        if self.logger: self.logger.reset_logging()
 
         self.current_lap_time = 0.0
         self.num_toggles = 0
@@ -148,8 +151,7 @@ class BaseNode(Node):
         observation = {}
         observation["scan"] = self.scan
         if observation["scan"] is None: observation["scan"] = np.zeros(1080)
-        # observation['linear_vel_x'] = self.velocity #TODO: deprecate this
-        # observation['steering_delta'] = self.steering_angle #! this is duyplication
+
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, self.steering_angle])
         observation['state'] = state
         observation['reward'] = 0.0
