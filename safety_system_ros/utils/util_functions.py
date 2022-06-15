@@ -7,10 +7,11 @@ from numba import njit
 import os, shutil
 
 def load_conf(fname):
-    mac_path = "/Users/benjamin/Documents/GitHub/safety_system_ros/config/"
+    # mac_path = "/Users/benjamin/Documents/GitHub/safety_system_ros/config/"
 
     # full_path =  "/home/benjy/sim_ws/src/safety_system_ros/config/" + fname + '.yaml'
-    full_path =  mac_path + fname + '.yaml'
+    full_path =  "/home/nvidia/f1tenth_ws/src/safety_system_ros/config/" + fname + '.yaml'
+    # full_path =  mac_path + fname + '.yaml'
     with open(full_path) as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
 
