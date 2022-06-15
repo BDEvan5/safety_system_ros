@@ -24,7 +24,7 @@ class RaceTrack:
 
     def load_center_pts(self):
         track_data = []
-        directory = '/home/benjy/sim_ws/src/safety_system_ros/map_data/'
+        directory = "/Users/benjamin/Documents/GitHub/safety_system_ros/" + 'map_data/'
         filename = directory + self.map_name + '_std.csv'
         
         try:

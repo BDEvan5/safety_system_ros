@@ -153,12 +153,12 @@ def check_viable_state(i, j, k, q, dynamics, previous_kernel):
 
 
 def prepare_track_img(sim_conf):
-    file_name =  "/home/benjy/sim_ws/src/safety_system_ros/map_data/"  + sim_conf.map_name  + '.yaml'
+    file_name =  sim_conf.directory + "map_data/"  + sim_conf.map_name  + '.yaml'
     with open(file_name) as file:
         documents = yaml.full_load(file)
         yaml_file = dict(documents.items())
     img_resolution = yaml_file['resolution']
-    map_img_path =  "/home/benjy/sim_ws/src/safety_system_ros/map_data/" + yaml_file['image']
+    map_img_path =  sim_conf.directory + "map_data/" + yaml_file['image']
 
     resize = int(sim_conf.n_dx * img_resolution)
 

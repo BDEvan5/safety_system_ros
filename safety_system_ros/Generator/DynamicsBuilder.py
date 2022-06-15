@@ -1,7 +1,7 @@
 
-from SuperSafety.Utils.utils import limit_phi, load_conf
+from safety_system_ros.utils.util_functions import limit_phi, load_conf
 
-from SuperSafety.Supervisor.Dynamics import run_dynamics_update
+from safety_system_ros.utils.Dynamics import run_dynamics_update
 
 import numpy as np
 from matplotlib import pyplot as plt

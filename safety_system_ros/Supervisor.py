@@ -256,10 +256,10 @@ class TrackKernel:
     def __init__(self, sim_conf, map_name, plotting=False):
         # map_name = "columbia_small"
         if sim_conf.steering:
-            kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_std_{map_name}.npy"
+            kernel_name = sim_conf.directory + f"Data/Kernels/Kernel_std_{map_name}.npy"
             self.m = Modes(sim_conf)
         else:
-            kernel_name = f"/home/benjy/sim_ws/src/safety_system_ros/Data/Kernels/Kernel_filter_{map_name}.npy"
+            kernel_name = sim_conf.directory + f"Data/Kernels/Kernel_filter_{map_name}.npy"
             self.m = SingleMode(sim_conf)
         self.kernel = np.load(kernel_name)
 
@@ -272,7 +272,7 @@ class TrackKernel:
         self.n_modes = self.m.n_modes
 
         
-        file_name = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/' + map_name + '.yaml'
+        file_name = sim_conf.directory + f'map_data/' + map_name + '.yaml'
         with open(file_name) as file:
             documents = yaml.full_load(file)
             yaml_file = dict(documents.items())
