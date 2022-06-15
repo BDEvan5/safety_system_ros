@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import csv
-import casadi as ca 
+# import casadi as ca 
 from scipy import ndimage 
 import io
 
@@ -40,7 +40,7 @@ class ProcessMap:
         self.dt = ndimage.distance_transform_edt(self.map_img) 
         self.dt = np.array(self.dt *self.resolution)
 
-        self.find_centerline(False)
+        self.find_centerline(True)
         self.find_nvecs_old()
         # self.find_nvecs()
         self.set_true_widths()
@@ -148,8 +148,8 @@ class ProcessMap:
     def find_centerline(self, show=True):
         dt = self.dt
 
-        # d_search = 1
-        d_search = 0.8
+        d_search = 1.
+        # d_search = 0.8
         n_search = 21
         dth = (np.pi * 4/5) / (n_search-1)
 
@@ -514,10 +514,12 @@ def run_pre_map():
     # map_name = "berlin"
     # map_name = "race_track"
     
-    map_name = "f1_aut_wide"
+    # map_name = "f1_aut_wide"
     # map_name = "example_map"
     # map_name = "levine_blocked"
     # map_name = "columbia_small"
+
+    map_name = "levine_2nd"
 
     pre_map = ProcessMap(conf, map_name)
     pre_map.run_conversion()

@@ -225,8 +225,8 @@ def generate_kernels():
     build_dynamics_table(conf)
 
     # conf.map_name = "levine_blocked"
-    conf.map_name = "columbia_small"
-    # conf.map_name = "f1_aut_wide"
+    # conf.map_name = "columbia_small"
+    conf.map_name = "f1_aut_wide"
     build_track_kernel(conf)
 
 

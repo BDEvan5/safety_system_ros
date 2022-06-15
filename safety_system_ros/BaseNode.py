@@ -51,9 +51,11 @@ class BaseNode(Node):
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
 
-        self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
+        odom_topic = "pf/pose/odom"
+        # odom_topic = "ego_racecar/odom"
+        self.odom_subscriber = self.create_subscription(Odometry, odom_topic, self.odom_callback, 10)
 
-        self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
+        # self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
 
         self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
 
@@ -62,7 +64,8 @@ class BaseNode(Node):
             '/initialpose', 10)
 
     def current_drive_callback(self, msg):
-        self.steering_angle = msg.steering_angle
+        self.steering_angle = 0
+        # self.steering_angle = msg.steering_angle
 
     def training_callback(self):
         self.planner.agent.train(2)

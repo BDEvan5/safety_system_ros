@@ -43,6 +43,11 @@ def MapFiller(map_name, pts, crop_x, crop_y):
         map_img = np.array(map_img).astype(np.float64)
         map_img[map_img > 0.40] = 1
 
+    map_img[:, 0] = 1 
+    map_img[:, -1] = 1
+    map_img[0, :] = 1
+    map_img[-1, :] = 1
+
         # plt.figure(1)
         # plt.imshow(map_img.T, origin='lower')
         # plt.show()
@@ -54,6 +59,8 @@ def MapFiller(map_name, pts, crop_x, crop_y):
     
     # map_img[map_img!=5] = 10
     # map_img[map_img==5] = 0
+
+
 
     plt.show()
     plt.figure(1)
@@ -233,6 +240,19 @@ def run_levine():
 
     MapFiller('levine_blocked', pts, crop_x, crop_y)
 
+def run_levine_2nd():
+    view_map("levine_2nd")
+
+    crop_x = [20, 600]
+    crop_y = [200, 560]
+    # pts = [[0, 0], [80, 60], [50, 10], [50, 110], [220, 5], [18, 6], [206, 10], [20, 112]]
+    pts = []
+    # pts = [[70, 70]]
+    # pts = [[45, 60]]
+    # pts = [[30, 40], [200, 45], [100, 150], [200, 100], [300, 220], [200, 280], [555, 136], [555, 25], [214, 186], [50, 288], [50, 26], [520, 25], [308, 190], [135, 190], [73, 182], [172, 186]]
+
+    MapFiller('levine_2nd', pts, crop_x, crop_y)
+
 
 if __name__ == '__main__':
     sys.setrecursionlimit(10000000)
@@ -240,7 +260,7 @@ if __name__ == '__main__':
     # run_torino()
     # run_berlin()
     # run_racetrack()
-    run_example_map()
+    # run_example_map()
 
     # run_circle()
     # run_columbia()
@@ -248,3 +268,6 @@ if __name__ == '__main__':
     # run_torino_small()
     # run_blackbox()
     # run_levine()
+
+    run_levine_2nd()
+
