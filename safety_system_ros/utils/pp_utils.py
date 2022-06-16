@@ -163,7 +163,10 @@ class Trajectory:
         self.ss = None 
         self.o_points = None
         self.traj_name = "Not set yet"
-        self.load_csv_track()
+        # self.load_csv_track()
+        self.directory = f'/home/nvidia/f1tenth_ws/src/safety_system_ros/'
+        # self.directory = f'/home/benjy/sim_ws/src/safety_system_ros/'
+        self.load_centerline_csv_track()
         self.n_wpts = len(self.waypoints)
 
     def load_csv_track(self):
@@ -171,7 +174,7 @@ class Trajectory:
         
         # filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
         # filename = os.path.dirname(os.path.abspath(__file__)) +  '/map_data/' + self.map_name + "_centerline.csv"
-        filename = f'/home/benjy/sim_ws/src/safety_system_ros/' + 'map_data/' + self.map_name + "_opti.csv"
+        filename = self.directory + 'map_data/' + self.map_name + "_opti.csv"
         with open(filename, 'r') as csvfile:
             csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
         
@@ -186,6 +189,34 @@ class Trajectory:
         # self.waypoints = track[:, 0:2]
         self.vs = track[:, 5]
         # self.vs = np.ones_like(track[:, 0])
+
+        # these don't get expanded
+        self.N = len(track)
+        self.o_pts = np.copy(self.waypoints)
+        self.ss = track[:, 0]
+        self.diffs = self.o_pts[1:,:] - self.o_pts[:-1,:]
+        self.l2s   = self.diffs[:,0]**2 + self.diffs[:,1]**2 
+        # self.show_trajectory()
+
+        
+    def load_centerline_csv_track(self):
+        track = []
+        
+        # filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
+        # filename = os.path.dirname(os.path.abspath(__file__)) +  '/map_data/' + self.map_name + "_centerline.csv"
+        filename = self.directory + 'map_data/' + self.map_name + "_std.csv"
+        with open(filename, 'r') as csvfile:
+            csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
+        
+            for lines in csvFile:  
+                track.append(lines)
+
+        track = np.array(track)
+        print(f"Track Loaded: {filename}")
+
+        # these get expanded
+        self.waypoints = track[:, 0:2]
+        self.vs = np.ones_like(track[:, 0]) * 1 
 
         # these don't get expanded
         self.N = len(track)
