@@ -26,11 +26,11 @@ def generate_launch_description():
     )
 
 
-    localize_config = os.path.join(
-            get_package_share_directory('particle_filter'),
-            'config',
-            'localize.yaml'
-        )
+    # localize_config = os.path.join(
+    #         get_package_share_directory('particle_filter'),
+    #         'config',
+    #         'localize.yaml'
+    #     )
     # localize_config_dict = yaml.safe_load(open(localize_config, 'r'))
     # map_name = localize_config_dict['map_server']['ros__parameters']['map']
     # localize_la = DeclareLaunchArgument(
