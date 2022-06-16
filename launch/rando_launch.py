@@ -10,7 +10,8 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     config = os.path.join(
-        "/home/benjy/sim_ws/src/safety_system_ros/",
+        "/home/nvidia/f1tenth_ws/src/safety_system_ros/",
+        # "/home/benjy/sim_ws/src/safety_system_ros/",
         'config',
         'testing_params.yaml'
     )
