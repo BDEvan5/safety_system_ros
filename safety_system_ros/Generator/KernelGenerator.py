@@ -221,8 +221,8 @@ def build_track_kernel(conf):
 
 
 def generate_kernels():
-    # conf = load_conf("config_file")
-    conf = load_conf_mac("config_file")
+    conf = load_conf("config_file")
+    # conf = load_conf_mac("config_file")
     build_dynamics_table(conf)
 
     # conf.map_name = "levine_blocked"
