@@ -35,9 +35,12 @@ class TestingNode(BaseNode):
         action = self.planner.plan(observation)
         if self.supervision: 
             new_action =  self.supervisor.supervise(observation['state'], action)
-            self.get_logger().info(f"Action: {action} :: NewAct: {new_action}")
+            if new_action[0] == action[0]:
+                self.get_logger().info(f"Action: {action}")
+            else:
+                self.get_logger().info(f"Action: {action} :: NewAct: {new_action}")
+
             return new_action
-        self.get_logger().info(f"Action: {action}")
         return action
 
     def lap_complete_callback(self):
