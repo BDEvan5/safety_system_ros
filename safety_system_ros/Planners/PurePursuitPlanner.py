@@ -34,6 +34,7 @@ class PurePursuitPlanner:
         speed, steering_angle = get_actuation(theta, lookahead_point, position, self.lookahead, self.wheelbase)
         steering_angle = np.clip(steering_angle, -self.max_steer, self.max_steer)
 
+        speed = 1
         action = np.array([steering_angle, speed])
         # action = np.array([steering_angle, self.vehicle_speed])
 
