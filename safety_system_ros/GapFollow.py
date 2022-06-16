@@ -10,7 +10,7 @@ from safety_system_ros.utils.util_functions import *
 
 class TestingNode(BaseNode):
     def __init__(self):
-        super().__init__('car_tester')
+        super().__init__('gap_follow')
 
         self.declare_parameter('n_laps')
         self.declare_parameter('supervision')

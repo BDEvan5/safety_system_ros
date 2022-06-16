@@ -18,7 +18,8 @@ class Logggs:
 
         self.resolution = None
         # self.map_name = "f1_aut_wide"
-        self.map_name = "columbia_small"
+        # self.map_name = "columbia_small"
+        self.map_name = "levine_2nd"
         # self.map_name = "example_map"
         self.origin = None
         self.map_img_name = None
@@ -66,7 +67,8 @@ class Logggs:
 
     def load_csv_log(self, lap_n):
         track = []
-        filename = self.path + f"{lap_n}_log_file.csv"
+        # filename = self.path + f"{lap_n}_log_file.csv"
+        filename = "Data/log_1.csv"
         with open(filename, 'r') as csvfile:
             csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
         
@@ -77,12 +79,17 @@ class Logggs:
         print(f"Track Loaded: {filename}")
 
         # these get expanded
-        self.steers = track[:,0]
-        self.vels = track[:,1]
-        self.pos_xs = track[:,2]
-        self.pos_ys = track[:,3]
-        self.thetas = track[:,4]
-        self.vs = track[:,5]
+        self.pos_xs = track[:,0]
+        self.pos_ys = track[:,1]
+        self.thetas = track[:,2]
+        self.vs = track[:,3]
+
+        # self.steers = track[:,0]
+        # self.vels = track[:,1]
+        # self.pos_xs = track[:,2]
+        # self.pos_ys = track[:,3]
+        # self.thetas = track[:,4]
+        # self.vs = track[:,5]
 
         self.N = len(track)
 
@@ -159,7 +166,8 @@ class Trajectory:
         self.map_name = map_name
         self.waypoints = None
         self.vs = None
-        self.load_csv_track()
+        # self.load_csv_track()
+        self.load_centerline_csv_track()
         self.n_wpts = len(self.waypoints)
 
         self.max_reacquire = 20
@@ -185,6 +193,23 @@ class Trajectory:
         self.waypoints = track[:, 1:3]
         self.vs = track[:, 5]
 
+    def load_centerline_csv_track(self):
+        track = []
+        
+        # filename = f'/home/benjy/sim_ws/src/safety_system_ros/map_data/{self.map_name}_centerline.csv'
+        # filename = os.path.dirname(os.path.abspath(__file__)) +  '/map_data/' + self.map_name + "_centerline.csv"
+        filename = 'map_data/' + self.map_name + "_std.csv"
+        with open(filename, 'r') as csvfile:
+            csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
+        
+            for lines in csvFile:  
+                track.append(lines)
+
+        track = np.array(track)
+        print(f"Track Loaded: {filename}")
+
+        # these get expanded
+        self.waypoints = track[:, 0:2]
 
 
 if __name__ == '__main__':
