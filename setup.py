@@ -34,7 +34,7 @@ setup(
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
             'rando_plan=safety_system_ros.RandoNode:main',
-            'odom_logger=safety_system_ros.OdomLoggerNode:main',
+            'odom_logger=safety_system_ros.OdomLoggingNode:main',
         ],
     },
 )
