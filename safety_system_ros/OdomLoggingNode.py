@@ -81,3 +81,15 @@ class LapLoggingNode(Node):
         self.theta = copy(theta)
 
         self.write_env_log(f"{self.position[0]}, {self.position[1]}, {self.theta}, {self.velocity}")
+
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = LapLoggingNode()
+    rclpy.spin(node)
+
+if __name__ == '__main__':
+    main()
+
+
