@@ -26,7 +26,7 @@ safety_trainer:
 
 pure_pursuit:
   ros__parameters: 
-    map_name: "levine_2nd_edit"
+    map_name: "levine_2nd"
     # map_name: "levine_blocked"
     # map_name: "columbia_small"
     n_laps: 10
