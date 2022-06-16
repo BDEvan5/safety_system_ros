@@ -12,7 +12,7 @@ car_tester:
 
     # map_name: "f1_aut_wide"
     # map_name: "columbia_small"
-    map_name: "levine_2nd_edit"
+    map_name: "levine_2nd"
     # map_name: "levine_blocked"
 
 safety_trainer:
@@ -20,7 +20,7 @@ safety_trainer:
     agent_name: "TestingAgent_1"
 
     # map_name: "levine_blocked"
-    map_name: "levine_2nd_edit"
+    map_name: "levine_2nd"
     # map_name: "columbia_small"
     n_laps: 3
 
@@ -37,7 +37,7 @@ pure_pursuit:
 
 gap_follow:
   ros__parameters: 
-    map_name: "levine_2nd_edit"
+    map_name: "levine_2nd"
     # map_name: "columbia_small"
     n_laps: 10
     
@@ -48,7 +48,7 @@ gap_follow:
 rando_plan:
   ros__parameters: 
     n_laps: 10
-    map_name: "levine_2nd_edit"
+    map_name: "levine_2nd"
     # map_name: "columbia_small" # for supervisor
     
 
