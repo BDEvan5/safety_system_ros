@@ -27,8 +27,9 @@ class PurePursuitPlanner:
         theta = state[2]
         lookahead_point = self.trajectory.get_current_waypoint(position, self.lookahead)
 
-        if state[3] < self.v_min_plan:
-            return np.array([0.0, self.vehicle_speed])
+        # TODO: this should only be for simulation
+        # if state[3] < self.v_min_plan:
+        #     return np.array([0.0, self.vehicle_speed])
 
         speed, steering_angle = get_actuation(theta, lookahead_point, position, self.lookahead, self.wheelbase)
         steering_angle = np.clip(steering_angle, -self.max_steer, self.max_steer)
