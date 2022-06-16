@@ -35,7 +35,7 @@ class TestingNode(BaseNode):
         action = self.planner.plan(observation)
         if self.supervision: 
             new_action =  self.supervisor.supervise(observation['state'], action)
-            self.get_logger().info(f"Action: {action} :: NewAct: {new_action}")}
+            self.get_logger().info(f"Action: {action} :: NewAct: {new_action}")
             return new_action
         self.get_logger().info(f"Action: {action}")
         return action
