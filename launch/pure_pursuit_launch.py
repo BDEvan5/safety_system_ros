@@ -39,16 +39,16 @@ def generate_launch_description():
     #     description='Localization configs')
 
     # nodes
-    pf_node = Node(
-        package='particle_filter',
-        executable='particle_filter',
-        name='particle_filter',
-        parameters=[localize_config]
-        # parameters=[LaunchConfiguration('localize_config')]
-    )
+    # pf_node = Node(
+    #     package='particle_filter',
+    #     executable='particle_filter',
+    #     name='particle_filter',
+    #     parameters=[localize_config]
+    #     # parameters=[LaunchConfiguration('localize_config')]
+    # )
 
     ld.add_action(testing_node)
-    ld.add_action(pf_node)
+    # ld.add_action(pf_node)
 
     return ld
 
