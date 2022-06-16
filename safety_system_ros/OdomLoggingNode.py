@@ -20,8 +20,8 @@ from copy import copy
 
 
 class LapLoggingNode(Node):
-    def __init__(self, node_name):
-        super().__init__(node_name)
+    def __init__(self):
+        super().__init__('odom_logger')
         
         # current vehicle state
         self.position = np.array([0, 0])
