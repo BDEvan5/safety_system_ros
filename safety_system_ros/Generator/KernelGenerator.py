@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from numba import njit
 import yaml
 from PIL import Image
-from safety_system_ros.utils.util_functions import load_conf
+from safety_system_ros.utils.util_functions import load_conf, load_conf_mac
 from DynamicsBuilder import build_dynamics_table
 
 
@@ -221,12 +221,14 @@ def build_track_kernel(conf):
 
 
 def generate_kernels():
-    conf = load_conf("config_file")
+    # conf = load_conf("config_file")
+    conf = load_conf_mac("config_file")
     build_dynamics_table(conf)
 
     # conf.map_name = "levine_blocked"
     # conf.map_name = "columbia_small"
-    conf.map_name = "f1_aut_wide"
+    conf.map_name = "levine_2nd"
+    # conf.map_name = "f1_aut_wide"
     build_track_kernel(conf)
 
 

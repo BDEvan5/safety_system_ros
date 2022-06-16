@@ -29,7 +29,9 @@ class TestingNode(BaseNode):
 
     def calculate_action(self, observation):
         action = self.planner.plan(observation)
-        return self.supervisor.supervise(observation['state'], action)
+        new_action =  self.supervisor.supervise(observation['state'], action)
+        self.get_logger().info(f"Action: {action} :: NewAct: {new_action}")
+        return new_action
 
     def lap_complete_callback(self):
         print(f"Lap complee: {self.current_lap_time}")

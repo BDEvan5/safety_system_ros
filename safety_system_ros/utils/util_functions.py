@@ -21,6 +21,21 @@ def load_conf(fname):
 
     return conf
 
+def load_conf_mac(fname):
+    mac_path = "/Users/benjamin/Documents/GitHub/safety_system_ros/config/"
+
+    # full_path =  "/home/benjy/sim_ws/src/safety_system_ros/config/" + fname + '.yaml'
+    # full_path =  "/home/nvidia/f1tenth_ws/src/safety_system_ros/config/" + fname + '.yaml'
+    full_path =  mac_path + fname + '.yaml'
+    with open(full_path) as file:
+        conf_dict = yaml.load(file, Loader=yaml.FullLoader)
+
+    conf = Namespace(**conf_dict)
+
+    # np.random.seed(conf.random_seed)
+
+    return conf
+
 
 def init_file_struct(path):
     if os.path.exists(path):
