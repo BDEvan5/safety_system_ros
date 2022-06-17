@@ -50,7 +50,7 @@ class PP2(Node):
         self.logger = None
 
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
+        # self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
 
         odom_topic = "pf/pose/odom"
         # odom_topic = "ego_racecar/odom"
@@ -88,6 +88,7 @@ class PP2(Node):
         theta = z * np.pi / 180
         self.theta = copy(theta)
 
+        # self.drive_callback()
 
     def drive_callback(self):
         state = np.array([self.position[0], self.position[1], self.theta, self.velocity, 0])
