@@ -23,9 +23,9 @@ simulation_time: 0.1
 #-------------------------------------------------------------------------
 
 #save_paths
-directory: "/Users/benjamin/Documents/GitHub/safety_system_ros/"
+# directory: "/Users/benjamin/Documents/GitHub/safety_system_ros/"
 # directory: "/home/benjy/sim_ws/src/safety_system_ros/"
-# directory: "/home/nvidia/f1tenth_ws/src/safety_system_ros/"
+directory: "/home/nvidia/f1tenth_ws/src/safety_system_ros/"
 vehicle_path: "Data/Vehicles/"
 kernel_path: "Data/Kernels/"
 dynamics_path: "Data/Dynamics/"
