@@ -31,8 +31,8 @@ pure_pursuit:
     # map_name: "columbia_small"
     n_laps: 10
     
-    supervision: True
-    # supervision: False
+    # supervision: True
+    supervision: False
 
 
 gap_follow:
