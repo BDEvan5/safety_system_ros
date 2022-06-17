@@ -25,10 +25,17 @@ def generate_launch_description():
     #     parameters=[config]
     # )
 
+    # testing_node = Node(
+    #     package='safety_system_ros',
+    #     executable='pp2',
+    #     name='pp2',
+    #     parameters=[config]
+    # )
+
     testing_node = Node(
         package='safety_system_ros',
-        executable='pp2',
-        name='pp2',
+        executable='super_t',
+        name='super_t',
         parameters=[config]
     )
 
