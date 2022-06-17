@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from numba import njit
 import yaml
 from PIL import Image
-from safety_system_ros.utils.util_functions import load_conf
+from safety_system_ros.utils.util_functions import load_conf_mac
 from KernelGenerator import prepare_track_img, shrink_img
 
 class VeiwKernel:
@@ -120,8 +120,8 @@ class VeiwKernel:
 
 
 def view_kernel():
-    conf = load_conf("config_file")
-    conf.map_name = "columbia_small"
+    conf = load_conf_mac("config_file")
+    conf.map_name = "f1_aut_wide"
     img = prepare_track_img(conf) 
     img, img2 = shrink_img(img, 5)
     k = VeiwKernel(conf, img2)
