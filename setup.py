@@ -36,6 +36,7 @@ setup(
             'rando_plan=safety_system_ros.RandoNode:main',
             'odom_logger=safety_system_ros.OdomLoggingNode:main',
             'pp2=safety_system_ros.pp2:main',
+            'super_t=safety_system_ros.SuperT:main',
         ],
     },
 )

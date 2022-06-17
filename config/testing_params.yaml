@@ -34,6 +34,16 @@ pure_pursuit:
     supervision: True
     # supervision: False
 
+super_t:
+  ros__parameters: 
+    map_name: "levine_2nd"
+    # map_name: "levine_blocked"
+    # map_name: "columbia_small"
+    n_laps: 10
+    
+    supervision: True
+    # supervision: False
+
 
 gap_follow:
   ros__parameters: 
