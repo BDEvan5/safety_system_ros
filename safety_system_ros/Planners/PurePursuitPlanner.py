@@ -22,7 +22,8 @@ class PurePursuitPlanner:
 
 
     def plan(self, obs):
-        state = obs['state']
+        # state = obs['state']
+        state = obs
         position = state[0:2]
         theta = state[2]
         lookahead_point = self.trajectory.get_current_waypoint(position, self.lookahead)
