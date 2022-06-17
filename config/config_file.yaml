@@ -13,7 +13,7 @@ l_f: 0.158
 #-------------------------------------------------------------------------
 
 # tuneable parameters
-vehicle_speed: 1         # speed at which the vehilce is set to travel at
+vehicle_speed: 0.5         # speed at which the vehilce is set to travel at
 v_min_plan: 2            # minimum speed for selecting a steering angle to prevent instability
 lookahead: 1
 range_finder_scale: 5
@@ -33,8 +33,8 @@ dynamics_path: "Data/Dynamics/"
 #-------------------------------------------------------------------------
 # Kernel paramters
 nq_steer: 9              # number of modes for the steering range
-kernel_time_step: 0.3    # Planning timestep used in kernel generation
-lookahead_time_step: 0.3 # Planning timestep used the supervisor
+kernel_time_step: 0.4    # Planning timestep used in kernel generation
+lookahead_time_step: 0.4 # Planning timestep used the supervisor
 n_dx: 40                 # number of points per m in discretising the track map
 phi_range: 6.28 # I think this can be removed
 n_phi: 41                # number of points per rotation in discretising vehicle orientation
