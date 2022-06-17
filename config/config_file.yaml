@@ -13,7 +13,7 @@ l_f: 0.158
 #-------------------------------------------------------------------------
 
 # tuneable parameters
-vehicle_speed: 0.5         # speed at which the vehilce is set to travel at
+vehicle_speed: 2         # speed at which the vehilce is set to travel at
 lookahead: 2
 range_finder_scale: 5
 v_min_plan: 2            # minimum speed for selecting a steering angle to prevent instability
@@ -23,9 +23,9 @@ simulation_time: 0.04
 #-------------------------------------------------------------------------
 
 #save_paths
-# directory: "/Users/benjamin/Documents/GitHub/safety_system_ros/"
+directory: "/Users/benjamin/Documents/GitHub/safety_system_ros/"
 # directory: "/home/benjy/sim_ws/src/safety_system_ros/"
-directory: "/home/nvidia/f1tenth_ws/src/safety_system_ros/"
+# directory: "/home/nvidia/f1tenth_ws/src/safety_system_ros/"
 vehicle_path: "Data/Vehicles/"
 kernel_path: "Data/Kernels/"
 dynamics_path: "Data/Dynamics/"
@@ -38,7 +38,7 @@ lookahead_time_step: 0.5 # Planning timestep used the supervisor
 n_dx: 40                 # number of points per m in discretising the track map
 phi_range: 6.28 # I think this can be removed
 n_phi: 41                # number of points per rotation in discretising vehicle orientation
-track_shrink_pixels: 15   # number of pixels to shrink the track map by
+track_shrink_pixels: 8   # number of pixels to shrink the track map by
 n_intermediate_pts: 1
 steering: False
 # steering: True
