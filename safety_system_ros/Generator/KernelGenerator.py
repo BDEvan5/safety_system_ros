@@ -231,6 +231,7 @@ def generate_kernels():
     # conf.map_name = "f1_aut_wide"
     build_track_kernel(conf)
 
+    plt.show()
 
 if __name__ == "__main__":
 

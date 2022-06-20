@@ -21,6 +21,8 @@ class Transformer:
 
         np.save(f"{self.conf.kernel_path}Kernel_transform_{self.conf.map_name}.npy", self.new_kernel)
 
+        print(f"Saved kernel to file: Kernel_transform_{self.conf.map_name}")
+
     def plot_kenrel_action(self):
         action = 0 # go straight from
         theta = 20
