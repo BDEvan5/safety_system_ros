@@ -227,7 +227,8 @@ def generate_kernels():
 
     # conf.map_name = "levine_blocked"
     # conf.map_name = "columbia_small"
-    conf.map_name = "levine_2nd"
+    conf.map_name = "lobby"
+    # conf.map_name = "levine_2nd"
     # conf.map_name = "f1_aut_wide"
     build_track_kernel(conf)
 

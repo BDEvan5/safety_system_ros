@@ -519,7 +519,8 @@ def run_pre_map():
     # map_name = "levine_blocked"
     # map_name = "columbia_small"
 
-    map_name = "levine_2nd"
+    map_name = "lobby"
+    # map_name = "levine_2nd"
 
     pre_map = ProcessMap(conf, map_name)
     pre_map.run_conversion()

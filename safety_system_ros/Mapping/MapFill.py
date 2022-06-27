@@ -240,6 +240,16 @@ def run_levine():
 
     MapFiller('levine_blocked', pts, crop_x, crop_y)
 
+def run_lobby():
+    view_map("lobby")
+
+    crop_x = [0, -1]
+    crop_y = [0, -1]
+    pts = []
+
+
+    MapFiller('lobby', pts, crop_x, crop_y)
+
 def run_levine_2nd():
     view_map("levine_2nd")
 
@@ -270,5 +280,6 @@ if __name__ == '__main__':
     # run_blackbox()
     # run_levine()
 
-    run_levine_2nd()
+    run_lobby()
+    # run_levine_2nd()
 

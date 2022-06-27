@@ -121,7 +121,8 @@ class VeiwKernel:
 
 def view_kernel():
     conf = load_conf_mac("config_file")
-    conf.map_name = "levine_2nd"
+    conf.map_name = "lobby"
+    # conf.map_name = "levine_2nd"
     # conf.map_name = "f1_aut_wide"
     img = prepare_track_img(conf) 
     img, img2 = shrink_img(img, 5)
