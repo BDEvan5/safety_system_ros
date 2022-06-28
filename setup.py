@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*.py')),
         (os.path.join('share', package_name), glob('map_data/*.csv')),
-        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        # (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name), glob('safety_system_ros/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'utils'), glob('safety_system_ros/utils/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'Planners'), glob('safety_system_ros/Planners/*.py')),
@@ -34,6 +34,7 @@ setup(
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
             'rando_plan=safety_system_ros.RandoNode:main',
+            'bag_extractor=safety_system_ros.utils.BagExtractor:main',
         ],
     },
 )

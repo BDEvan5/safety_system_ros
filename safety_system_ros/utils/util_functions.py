@@ -43,3 +43,10 @@ def quaternion_to_euler_angle(w, x, y, z):
     Z = math.degrees(math.atan2(t3, t4))
 
     return X, Y, Z
+
+
+def orientation_to_angle(orientation):
+    x, y, z = quaternion_to_euler_angle(orientation.w, orientation.x, orientation.y, orientation.z)
+    theta = z * np.pi / 180
+
+    return theta
