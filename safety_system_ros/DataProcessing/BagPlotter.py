@@ -3,9 +3,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 import yaml
 from PIL import Image
+import os 
 
 class BagDataPlotter:
-    def __init__(self):
+    def __init__(self, map_name):
         self.pos_xs = None
         self.pos_ys = None
         self.thetas = None
@@ -15,7 +16,7 @@ class BagDataPlotter:
         self.path = None
 
         self.resolution = None
-        self.map_name = "levine_2nd"
+        self.map_name = map_name
         self.origin = None
         self.map_img_name = None
         self.m = 3.47
@@ -60,8 +61,6 @@ class BagDataPlotter:
         self.height = self.map_img.shape[1]
         self.width = self.map_img.shape[0]
 
-
-
     def load_csv_data(self, folder):
         track = []
         # filename = self.path + f"{self.name}_odom.csv"
@@ -91,8 +90,6 @@ class BagDataPlotter:
 
         self.show_poses()
 
-
-
     def xy_to_row_column(self, pt_xy):
         c = int((pt_xy[0] - self.origin[0]) / self.resolution)
         r = int((pt_xy[1] - self.origin[1]) / self.resolution)
@@ -113,11 +110,10 @@ class BagDataPlotter:
 
         return np.array(xs), np.array(ys)
 
-
     def show_poses(self):
-        plt.figure(3)
+        plt.figure(1)
         plt.clf()
-        plt.title(f"Positions")
+        plt.title(f"{self.path}")
         plt.imshow(self.map_img, cmap='gray', origin='lower')
         # plt.plot(self.pos_xs, self.pos_ys)
         pts = np.array([self.pos_xs, self.pos_ys]).T
@@ -127,13 +123,18 @@ class BagDataPlotter:
         # xs, ys = self.convert_positions(self.t.waypoints)
         # plt.plot(xs, ys, 'r')
 
-        plt.pause(1)
-        # plt.pause(0.0001)
-        # plt.show()
-
+        # plt.pause(1)
+        
         plt.savefig(f"{self.path}/positions.png")
-        plt.savefig(f"{self.path}/positions.svg")
+        # plt.savefig(f"{self.path}/positions.svg")
 
+        name = os.path.split(self.path)[-1]
+        print(name)
+        plt.savefig(f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyImgs/{name}")
+        # plt.savefig(f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LevineImgs/{name}")
+
+        plt.pause(0.0001)
+        # plt.show()
 
 class Trajectory:
     def __init__(self, map_name):
@@ -169,10 +170,25 @@ class Trajectory:
 
 import glob
 
-def explore_folders():
-    log = BagDataPlotter()
+def explore_levine():
 
-    path = "Data/BagData/" 
+    log = BagDataPlotter("levine_2nd")
+
+    path = "Data/PaperData/Levine/" 
+
+    folders = glob.glob(f"{path}*")
+    for i, folder in enumerate(folders):
+        print(f"Folder being opened: {folder}")
+        # file = glob.glob(folder + "/*_odom.csv")
+        log.load_csv_data(folder)
+        print(f"Folder {i} done")
+
+
+def explore_lobby():
+
+    log = BagDataPlotter("lobby")
+
+    path = "Data/PaperData/Lobby/" 
 
     folders = glob.glob(f"{path}*")
     for i, folder in enumerate(folders):
@@ -183,11 +199,8 @@ def explore_folders():
 
 
 if __name__ == '__main__':
-    # log = BagDataPlotter('PP_1')
-    # log = BagDataPlotter('Data/Vehicles/TestingAgent_1/')
-    # log.load_csv_log(1)
-    # log.show_poses()
 
-    explore_folders()
+    explore_lobby()
+    # explore_levine()
 
-    plt.show()
+    # plt.show()

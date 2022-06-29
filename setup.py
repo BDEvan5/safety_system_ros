@@ -34,7 +34,7 @@ setup(
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
             'rando_plan=safety_system_ros.RandoNode:main',
-            'bag_extractor=safety_system_ros.utils.BagExtractor:main',
+            'bag_extractor=safety_system_ros.DataProcessing.BagExtractor:main',
         ],
     },
 )
