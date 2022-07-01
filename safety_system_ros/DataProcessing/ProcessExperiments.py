@@ -56,6 +56,7 @@ class BagDataPlotter:
 
     def load_csv_data(self, folder):
         track = []
+
         self.path = folder
         self.name = os.path.split(self.path)[-1]
         try:
@@ -83,7 +84,8 @@ class BagDataPlotter:
 
         lap_steps = self.separate_laps()
         # self.plot_lap_imgs(lap_steps)
-        self.plot_paper_laps_levine(lap_steps)
+        self.plot_paper_laps_lobby(lap_steps)
+        # self.plot_paper_laps_levine(lap_steps)
 
     def plot_lap_imgs(self, lap_steps):
         for i in range(len(lap_steps)-1):
@@ -110,8 +112,8 @@ class BagDataPlotter:
             plt.clf()
             # plt.title(f"{self.name}: Lap {i}")
             plt.imshow(self.map_img, cmap='gray', origin='lower')
-            plt.xlim(40, 640)
-            plt.ylim(230, 540)
+            # plt.xlim(40, 640)
+            # plt.ylim(230, 540)
             start = lap_steps[i]
             end = lap_steps[i+1]
             pts = np.array([self.pos_xs[start:end], self.pos_ys[start:end]]).T
@@ -128,7 +130,38 @@ class BagDataPlotter:
 
             plt.pause(0.00011)
             # print(f"{self.path}/{self.name}_lap_{i}.png")
+            # path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps/{self.name}_lap_{i}"
             path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LevinePaperLaps/{self.name}_lap_{i}"
+            plt.savefig(path + ".png")
+
+            tikzplotlib.save(path + ".tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\textwidth'])
+            plt.close(i)
+        # plt.show()
+        # plt.close()
+
+
+    def plot_paper_laps_lobby(self, lap_steps):
+        for i in range(len(lap_steps)-1):
+            plt.figure(1)
+            plt.clf()
+            # plt.title(f"{self.name}: Lap {i}")
+            plt.imshow(self.map_img.T, cmap='gray', origin='lower')
+            # plt.xlim(40, 640)
+            # plt.ylim(230, 540)
+            start = lap_steps[i]
+            end = lap_steps[i+1]
+            pts = np.array([self.pos_xs[start:end], self.pos_ys[start:end]]).T
+            xs, ys = self.convert_positions(pts)
+            # plt.gcf()
+            plt.plot(ys, xs, linewidth=2, color='darkblue')
+            # plt.plot(xs, ys, linewidth=2, color='darkblue')
+
+            plt.xticks([])
+            plt.yticks([])
+            plt.gca().set_aspect('equal', adjustable='box')
+
+            plt.pause(0.00011)
+            path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps/{self.name}_lap_{i}"
             plt.savefig(path + ".png")
 
             tikzplotlib.save(path + ".tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\textwidth'])
@@ -224,7 +257,8 @@ def explore_levine():
 
 
 def explore_lobby():
-
+    path = "/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps"
+    init_file_struct(path)
     log = BagDataPlotter("lobby")
 
     path = "Data/PaperData/UsefulLobby/" 
@@ -238,8 +272,8 @@ def explore_lobby():
 
 if __name__ == '__main__':
 
-    # explore_lobby()
-    explore_levine()
+    explore_lobby()
+    # explore_levine()
 
     # plt.show()
 
