@@ -17,8 +17,8 @@ def generate_launch_description():
 
     testing_node = Node(
         package='safety_system_ros',
-        executable='car_tester',
-        name='car_tester',
+        executable='agent_tester',
+        name='agent_tester',
         parameters=[config]
     )
 

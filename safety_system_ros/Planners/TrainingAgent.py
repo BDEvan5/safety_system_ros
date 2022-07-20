@@ -166,9 +166,9 @@ class TestVehicle(BaseVehicle):
     def plan(self, obs):
         nn_obs = self.transform_obs(obs)
 
-        if obs['state'][3] < self.v_min_plan:
-            self.action = np.array([0, 7])
-            return self.action
+        # if obs['state'][3] < self.v_min_plan:
+        #     self.action = np.array([0, 7])
+        #     return self.action
 
         nn_obs = torch.FloatTensor(nn_obs.reshape(1, -1))
         nn_action = self.actor(nn_obs).data.numpy().flatten()

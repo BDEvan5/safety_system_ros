@@ -32,6 +32,11 @@ pure_pursuit:
     # supervision: True
     supervision: False
 
+agent_tester:
+  ros__parameters:
+    n_laps: 2
+    agent_name: "BaselineAgent_1"
+
 
 gap_follow:
   ros__parameters: 

@@ -29,7 +29,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'car_tester=safety_system_ros.TestingNode:main',
+            'agent_tester=safety_system_ros.TestingNode:main',
             'safety_trainer=safety_system_ros.SafetyTrainerNode:main',
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
