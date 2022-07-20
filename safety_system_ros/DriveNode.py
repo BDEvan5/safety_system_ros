@@ -17,7 +17,7 @@ from copy import copy
 
 
 
-class BaseNode(Node):
+class DriveNode(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
         self.conf = load_conf("config_file") 
@@ -62,9 +62,6 @@ class BaseNode(Node):
     def current_drive_callback(self, msg):
         self.steering_angle = msg.steering_angle
 
-    def training_callback(self):
-        self.planner.agent.train(2)
-
     def odom_callback(self, msg):
         position = msg.pose.pose.position
         self.position = np.array([position.x, position.y])
@@ -75,13 +72,7 @@ class BaseNode(Node):
         self.theta = copy(theta)
 
     def scan_callback(self, msg):
-        # self.get_logger().info(f"Scan Callback: {msg}")
-        scan = np.array(msg.ranges)
-        # scan = scan[190:-190]
-        # inds = np.arange(0, 700, 35)
-        # scan = scan[inds]
-
-        self.scan = scan
+        self.scan = np.array(msg.ranges)
 
     def lap_done(self):
         self.current_lap_time = time.time() - self.lap_start_time
@@ -196,11 +187,9 @@ class BaseNode(Node):
         self.get_logger().info("Finished Resetting")
 
     def run_lap(self):
-        if self.planner == None:
-            raise NotImplementedError
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.ego_reset()
-        time.sleep(0.5)
+        time.sleep(0.1)
 
         self.current_lap_time = 0.0
         self.running = True
