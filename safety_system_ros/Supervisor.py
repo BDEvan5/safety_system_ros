@@ -44,7 +44,7 @@ class Supervisor:
         return action
 
     def check_init_action(self, state, init_action):
-        # self.kernel.plot_state(state)
+        self.kernel.plot_state(state)
 
         next_state = run_dynamics_update(state, init_action, self.time_step/2)
         safe = check_kernel_state(next_state, self.kernel.kernel, self.kernel.origin, self.kernel.resolution, self.kernel.phi_range, self.m.qs)
