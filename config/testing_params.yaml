@@ -1,19 +1,5 @@
 # testing
 
-car_tester:
-  ros__parameters:
-    n_laps: 2
-    # supervision: True
-    supervision: False
-
-    agent_name: "TestingAgent_1"
-    # agent_name: "SafetyTrainingAgent_1"
-    # agent_name: "BaselineAgent_1"
-
-    # map_name: "f1_aut_wide"
-    # map_name: "columbia_small"
-    map_name: "levine_blocked"
-
 safety_trainer:
   ros__parameters: 
     agent_name: "PaperSafetyAgent_1"
@@ -35,7 +21,7 @@ pure_pursuit:
 agent_tester:
   ros__parameters:
     n_laps: 2
-    agent_name: "BaselineAgent_1"
+    agent_name: "PaperSafetyAgent_1"
 
 
 gap_follow:

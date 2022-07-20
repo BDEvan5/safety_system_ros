@@ -16,45 +16,149 @@ from copy import copy
 
 from safety_system_ros.Supervisor import Supervisor, LearningSupervisor
 from safety_system_ros.Planners.TrainingAgent import TrainVehicle, TestVehicle
-from safety_system_ros.BaseNode import BaseNode
+from safety_system_ros.DriveNode import DriveNode
+from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
 
-class SafetyTrainer(BaseNode):
+
+class SingleMode:
+    def __init__(self, conf) -> None:
+        self.qs = np.array([[0, conf.vehicle_speed]])
+        self.n_modes = 1
+
+    def get_mode_id(self, delta):
+        return 0
+
+    def action2mode(self, action):
+        return self.qs[0]
+
+    def __len__(self): return self.n_modes
+   
+    
+class Supervisor:
+    def __init__(self, conf, map_name):
+        self.time_step = conf.lookahead_time_step
+
+        kernel_name = conf.directory + f"Data/Kernels/Kernel_filter_{map_name}.npy"
+        self.m = SingleMode(conf)
+        self.kernel = np.load(kernel_name)
+
+        self.resolution = conf.n_dx
+        self.phi_range = conf.phi_range
+        self.max_steer = conf.max_steer
+        self.n_modes = self.m.n_modes
+
+        file_name = conf.directory + f'map_data/' + map_name + '.yaml'
+        with open(file_name) as file:
+            documents = yaml.full_load(file)
+            yaml_file = dict(documents.items())
+        self.origin = np.array(yaml_file['origin'])
+
+
+    def check_init_action(self, state, init_action):
+        next_state = run_dynamics_update(state, init_action, self.time_step/2)
+        safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
+        if not safe:
+            return safe, next_state
+
+        next_state = run_dynamics_update(state, init_action, self.time_step)
+        safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
+        
+        return safe, next_state
+     
+@njit(cache=True) 
+def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
+        x_ind = min(max(0, int(round((state[0]-origin[0])*resolution))), kernel.shape[0]-1)
+        y_ind = min(max(0, int(round((state[1]-origin[1])*resolution))), kernel.shape[1]-1)
+
+        phi = state[2]
+        if phi >= phi_range/2:
+            phi = phi - phi_range
+        elif phi < -phi_range/2:
+            phi = phi + phi_range
+        theta_ind = int(round((phi + phi_range/2) / phi_range * (kernel.shape[2]-1)))
+
+        mode = 0
+        
+        if kernel[x_ind, y_ind, theta_ind, mode] != 0:
+            return False # unsfae state
+        return True # safe state
+
+class SafetyTrainer(DriveNode):
     def __init__(self):
-        super().__init__("safety_trainer")
-        self.declare_parameter('agent_name')
-        self.declare_parameter('map_name')
+        super().__init__('safety_trainer')
+
         self.declare_parameter('n_laps')
+        self.declare_parameter('map_name')
+        self.declare_parameter('agent_name')
 
-
-        agent_name = self.get_parameter('agent_name').value
         map_name = self.get_parameter('map_name').value
         self.n_laps = self.get_parameter('n_laps').value
+        agent_name = self.get_parameter('agent_name').value
 
-        self.planner = TrainVehicle(self.conf, agent_name) 
-        self.supervisor = LearningSupervisor(self.planner, self.conf, map_name)
+        self.get_logger().info(f"Number of random testing laps: {self.n_laps}")
 
-        # this is the asyn training frequency: consider making parameter
-        self.training_timer = self.create_timer(0.1, self.training_callback)
+        self.vehicle_speed = self.conf.vehicle_speed
+        self.d_max = self.conf.max_steer
+        
+        file_name = self.conf.directory + f'map_data/' + map_name + '.yaml'
+        with open(file_name) as file:
+            documents = yaml.full_load(file)
+            yaml_file = dict(documents.items())
+        self.origin = np.array(yaml_file['origin'])
 
-        self.get_logger().info("SafetyTrainer initialized")
+        self.pp_planner = PurePursuitPlanner(self.conf, map_name)
+        self.supervisor = Supervisor(self.conf, map_name)
+        self.agent = TrainVehicle(self.conf, agent_name)
 
-    def training_callback(self):
-        self.planner.agent.train(2)
+        self.intervenes = 0
+        self.reward_sum = 0
+        self.plan_steps = 0
+        self.intervene = False
+        self.constant_reward = 1
+        
+    def check_training(self):
+        if self.plan_steps % 20 == 0: 
+            self.get_logger().info(f"Steps: {self.plan_steps} -> intervene: {self.intervenes} -- Reward: {self.reward_sum}")
+            self.reward_sum = 0
+            self.send_drive_message(np.array([0, 0])) # send a drive message to stop
+            self.agent.agent.train(20)
+
+            self.agent.agent.save(self.agent.path)
+        
+        self.plan_steps+= 1
 
     def calculate_action(self, observation):
-        safe_action = self.supervisor.plan(observation) 
+        self.check_training()
 
-        return safe_action
+        if self.intervene:
+            observation['reward'] = - self.constant_reward + observation['reward']
+            self.agent.intervention_entry(observation)
+            self.reward_sum += observation['reward']
+            init_action = self.agent.plan(observation, False)
+        else:
+            self.reward_sum += observation['reward']
+            init_action = self.agent.plan(observation, True)
 
-    def save_data_callback(self):
-        self.planner.agent.save(self.planner.path)
-        self.planner.t_his.print_update(True)
-        self.planner.t_his.save_csv_data()
-        self.supervisor.save_intervention_list()
+        state = observation['state']
+        state[3] = self.conf.vehicle_speed 
+
+        safe, next_state = self.supervisor.check_init_action(state, init_action)
+        if safe:
+            if init_action[1] > 0.1:  init_action[1] = self.vehicle_speed
+            self.intervene = False 
+            return init_action
+        else:
+            action = self.pp_planner.plan(observation)
+            self.intervenes += 1
+            self.intervene = True
+            if action[1] > 0.1:  action[1] = self.vehicle_speed
+            return action
 
     def lap_complete_callback(self):
-        self.get_logger().info(f"Interventions: {self.supervisor.ep_interventions}")
-        self.supervisor.lap_complete(self.current_lap_time)
+        print(f"Lap complee: {self.current_lap_time}")
+        print(f"Interventions: {self.intervenes}")
+
+
 
 def main(args=None):
     rclpy.init(args=args)

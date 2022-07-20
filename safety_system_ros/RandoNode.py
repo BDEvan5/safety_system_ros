@@ -10,6 +10,20 @@ from safety_system_ros.Planners.RandomPlanner import RandomPlanner
 from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
 from safety_system_ros.utils.Dynamics import *
 
+
+class SingleMode:
+    def __init__(self, conf) -> None:
+        self.qs = np.array([[0, conf.vehicle_speed]])
+        self.n_modes = 1
+
+    def get_mode_id(self, delta):
+        return 0
+
+    def action2mode(self, action):
+        return self.qs[0]
+
+    def __len__(self): return self.n_modes
+   
     
 class Supervisor:
     def __init__(self, conf, map_name):
@@ -32,8 +46,6 @@ class Supervisor:
 
 
     def check_init_action(self, state, init_action):
-        # self.kernel.plot_state(state)
-
         next_state = run_dynamics_update(state, init_action, self.time_step/2)
         safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
         if not safe:
@@ -44,20 +56,7 @@ class Supervisor:
         
         return safe, next_state
      
-class SingleMode:
-    def __init__(self, conf) -> None:
-        self.qs = np.array([[0, conf.vehicle_speed]])
-        self.n_modes = 1
-
-    def get_mode_id(self, delta):
-        return 0
-
-    def action2mode(self, action):
-        return self.qs[0]
-
-    def __len__(self): return self.n_modes
-   
-# @njit(cache=True) 
+@njit(cache=True) 
 def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
         x_ind = min(max(0, int(round((state[0]-origin[0])*resolution))), kernel.shape[0]-1)
         y_ind = min(max(0, int(round((state[1]-origin[1])*resolution))), kernel.shape[1]-1)

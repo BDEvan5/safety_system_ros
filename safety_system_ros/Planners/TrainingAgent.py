@@ -62,6 +62,7 @@ class TrainVehicle(BaseVehicle):
 
         self.path = sim_conf.directory + sim_conf.vehicle_path + agent_name 
         init_file_struct(self.path)
+        print(f"Created path: {self.path}")
 
         state_space = self.n_beams # + 2
         self.agent = TD3(state_space, 1, 1, agent_name)
