@@ -12,7 +12,8 @@ MEMORY_SIZE = 100000
 
 
 # hyper parameters
-BATCH_SIZE = 100
+BATCH_SIZE = 40
+# BATCH_SIZE = 100
 GAMMA = 0.99
 tau = 0.005
 NOISE = 0.2

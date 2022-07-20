@@ -1,5 +1,5 @@
-image: lobby_filled.png
-# image: lobby.pgm
+# image: lobby_filled.png
+image: lobby.pgm
 mode: trinary
 resolution: 0.05
 origin: [-4.5, -5, 0]

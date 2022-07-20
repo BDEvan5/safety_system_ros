@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('launch/*.py')),
         (os.path.join('share', package_name), glob('map_data/*.csv')),
-        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        # (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name), glob('safety_system_ros/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'utils'), glob('safety_system_ros/utils/*.py')),
         (os.path.join('lib/python3.8/site-packages', package_name, 'Planners'), glob('safety_system_ros/Planners/*.py')),
@@ -29,14 +29,12 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'car_tester=safety_system_ros.TestingNode:main',
+            'agent_tester=safety_system_ros.TestingNode:main',
             'safety_trainer=safety_system_ros.SafetyTrainerNode:main',
             'pure_pursuit=safety_system_ros.PurePursuitNode:main',
             'gap_follow=safety_system_ros.GapFollow:main',
             'rando_plan=safety_system_ros.RandoNode:main',
-            'odom_logger=safety_system_ros.OdomLoggingNode:main',
-            'pp2=safety_system_ros.pp2:main',
-            'super_t=safety_system_ros.SuperT:main',
+            'bag_extractor=safety_system_ros.DataProcessing.BagExtractor:main',
         ],
     },
 )

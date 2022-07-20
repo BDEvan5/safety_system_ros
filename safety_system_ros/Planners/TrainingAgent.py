@@ -62,6 +62,7 @@ class TrainVehicle(BaseVehicle):
 
         self.path = sim_conf.directory + sim_conf.vehicle_path + agent_name 
         init_file_struct(self.path)
+        print(f"Created path: {self.path}")
 
         state_space = self.n_beams # + 2
         self.agent = TD3(state_space, 1, 1, agent_name)
@@ -166,9 +167,9 @@ class TestVehicle(BaseVehicle):
     def plan(self, obs):
         nn_obs = self.transform_obs(obs)
 
-        if obs['state'][3] < self.v_min_plan:
-            self.action = np.array([0, 7])
-            return self.action
+        # if obs['state'][3] < self.v_min_plan:
+        #     self.action = np.array([0, 7])
+        #     return self.action
 
         nn_obs = torch.FloatTensor(nn_obs.reshape(1, -1))
         nn_action = self.actor(nn_obs).data.numpy().flatten()
