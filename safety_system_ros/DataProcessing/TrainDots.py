@@ -5,6 +5,8 @@ import yaml, glob, os
 from PIL import Image
 import tikzplotlib
 
+
+
 class BagDataPlotter:
     def __init__(self, map_name):
         self.pos_xs = None
@@ -124,68 +126,46 @@ class BagDataPlotter:
         plt.close()
 
     def plot_paper_laps_levine(self, lap_steps):
+        if lap_steps[0] != 0:
+            lap_steps = np.insert(lap_steps, 0, 0)
         for i in range(len(lap_steps)-1):
+            start = lap_steps[i]
+            end = lap_steps[i+1]
+            print(f"Lap {i}: {start} - {end}")
+
+            step_range = range(lap_steps[i], lap_steps[i+1])
+            dot_pts = []
+            dot_pts.append([self.pos_xs[0], self.pos_ys[0]])
+            for j in step_range:
+                if self.vs[j] <1 and self.vs[j-1] > 1: # capture the stop
+                    dot_pts.append([self.pos_xs[j], self.pos_ys[j]])
+            print(f"Stop Points (lap: {i}): {dot_pts}")
+
             plt.figure(1)
             plt.clf()
-            # plt.title(f"{self.name}: Lap {i}")
             plt.imshow(self.map_img, cmap='gray', origin='lower')
-            # plt.xlim(40, 640)
-            # plt.ylim(230, 540)
-            start = lap_steps[i]
-            end = lap_steps[i+1]
             pts = np.array([self.pos_xs[start:end], self.pos_ys[start:end]]).T
+            plt.xlim(40, 640)
+            plt.ylim(230, 540)
+        # dots
+            xs, ys = self.convert_positions(dot_pts)
+            for k, pt in enumerate(dot_pts):
+                plt.plot(xs[k], ys[k], 'o', color='darkgreen')
+        # trajectory
             xs, ys = self.convert_positions(pts)
-            # plt.gcf()
-            plt.plot(xs, ys, linewidth=2, color='darkblue')
-            # for i, pt in enumerate(pts):
-            #     if i%20 == 0:
-            #         plt.plot(xs[0], ys[1], 'o', color='darkgreen')
+            plt.plot(xs, ys, linewidth=3, color='darkblue')
 
             plt.xticks([])
             plt.yticks([])
             plt.gca().set_aspect('equal', adjustable='box')
 
             plt.pause(0.00011)
-            # print(f"{self.path}/{self.name}_lap_{i}.png")
-            # path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps/{self.name}_lap_{i}"
-            path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LevinePaperLaps/{self.name}_lap_{i}"
+            path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LevinePaperLaps/{self.name}_lap_train_{i}"
+
             plt.savefig(path + ".png")
 
             tikzplotlib.save(path + ".tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\\textwidth'])
             plt.close(i)
-        # plt.show()
-        # plt.close()
-
-
-    def plot_paper_laps_lobby(self, lap_steps):
-        for i in range(len(lap_steps)-1):
-            plt.figure(1)
-            plt.clf()
-            # plt.title(f"{self.name}: Lap {i}")
-            plt.imshow(self.map_img.T, cmap='gray', origin='lower')
-            # plt.xlim(40, 640)
-            # plt.ylim(230, 540)
-            start = lap_steps[i]
-            end = lap_steps[i+1]
-            pts = np.array([self.pos_xs[start:end], self.pos_ys[start:end]]).T
-            xs, ys = self.convert_positions(pts)
-            # plt.gcf()
-            plt.plot(ys, xs, linewidth=2, color='darkblue')
-            # plt.plot(xs, ys, linewidth=2, color='darkblue')
-
-            plt.xticks([])
-            plt.yticks([])
-            plt.gca().set_aspect('equal', adjustable='box')
-
-            plt.pause(0.00011)
-            path = f"/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps/{self.name}_lap_{i}"
-            plt.savefig(path + ".png")
-
-            tikzplotlib.save(path + ".tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\\textwidth'])
-            plt.close(i)
-        # plt.show()
-        # plt.close()
-
 
     def xy_to_row_column(self, pt_xy):
         c = int((pt_xy[0] - self.origin[0]) / self.resolution)
@@ -219,18 +199,17 @@ class BagDataPlotter:
             if self.vs[i] == 0.0:
                 self.start_time = self.time_steps[i]
             if done:
+                print(f"Done on step: {i}")
                 lap_steps.append(i)
                 self.near_start = True
                 self.toggle_list = 0
-                if (self.time_steps[i] - self.start_time) > 1:
+                if self.time_steps[i] - self.start_time > 1:
                     self.lap_times.append(self.time_steps[i] - self.start_time)
-                print(f"Done on step: {i} --> Laptime: {self.time_steps[i] - self.start_time}")
                 self.start_time = self.time_steps[i]
         return lap_steps
 
     def check_lap_done(self, position):
-        # start_theta = -1.6
-        start_theta = 0
+        start_theta = -1.6
         start_rot = np.array([[np.cos(-start_theta), -np.sin(-start_theta)], [np.sin(-start_theta), np.cos(-start_theta)]])
 
         poses_x = np.array(position[0]) - self.start_x
@@ -238,7 +217,7 @@ class BagDataPlotter:
         delta_pt = np.dot(start_rot, np.stack((poses_x, poses_y), axis=0))
 
         dist2 = delta_pt[0]**2 + delta_pt[1]**2
-        closes = dist2 <= 2
+        closes = dist2 <= 1
         if closes and not self.near_start:
             self.near_start = True
             self.toggle_list += 1
@@ -266,40 +245,28 @@ class BagDataPlotter:
         plt.savefig(f"{self.path}/positions.svg")
 
 from safety_system_ros.utils.util_functions import *
-def explore_levine():
-    path = "/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LevinePaperLaps"
-    init_file_struct(path)
-
+def explore_levine_train2():
     log = BagDataPlotter("levine_2nd")
 
     path = "Data/PaperData/UsefulLevine/" 
 
-    folders = glob.glob(f"{path}*")
-    for i, folder in enumerate(folders):
-        print(f"Folder being opened: {folder}")
-        log.load_csv_data(folder)
-        print(f"Folder {i} done")
+    name = 'e_2_train'
+    print(f"Folder being opened: {path + name}")
+    log.load_csv_data(path + name)
+    print(f"Folder done")
+
+def explore_levine_train4():
+    log = BagDataPlotter("levine_2nd")
+
+    path = "Data/PaperData/UsefulLevine/" 
+
+    name = 'e_4_train4'
+    print(f"Folder being opened: {path + name}")
+    log.load_csv_data(path + name)
+    print(f"Folder done")
 
 
-def explore_lobby():
-    path = "/home/benjy/sim_ws/src/safety_system_ros/Data/PaperData/LobbyPaperLaps"
-    init_file_struct(path)
-    log = BagDataPlotter("lobby")
 
-    path = "Data/PaperData/UsefulLobby/" 
-
-    folders = glob.glob(f"{path}*")
-    for i, folder in enumerate(folders):
-        print(f"Folder being opened: {folder}")
-        log.load_csv_data(folder)
-        print(f"Folder {i} done")
-
-
-if __name__ == '__main__':
-
-    # explore_lobby()
-    explore_levine()
-
-    # plt.show()
-
+# explore_levine_train4()
+explore_levine_train2()
 

@@ -1,7 +1,7 @@
 # testing
 bag_extractor:
   ros__parameters: 
-    rate: "10"
+    rate: "100"
     
     # bag_name: "e_1_test"
     # bag_name: "e_2_test"
@@ -29,7 +29,7 @@ bag_extractor:
     # bag_name: "t2_1_train"
     # bag_name: "t2_1_train2"
     ###### bag_name: "t2_11_train"
-    bag_name: "test9"
+    # bag_name: "test9"
     # bag_name: "test_agent10"
     # bag_name: "testing_4"
     # bag_name: "testing_6"
@@ -44,5 +44,18 @@ bag_extractor:
     # bag_name: "train_onB_3"
     # bag_name: "train_onBActual_3"
     # bag_name: "ex4_on_lobby_test"
+
+
+    # bag_name: "ex4_on_lobby_test"
+    # bag_name: "pp_lobby_1"
+    # bag_name: "sim2real_lobby"
+
+    # bag_name: "e_1_test"
+    # bag_name: "e_2_test2"
+    # bag_name: "e_2_train"
+    # bag_name: "e_4_train4"
+    # bag_name: "e_4_test4"
+    # bag_name: "PP 1"
+    bag_name: "sim2real_3"
 
 

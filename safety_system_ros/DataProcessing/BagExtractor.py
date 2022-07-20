@@ -49,13 +49,14 @@ class BagExtractor(Node):
 
         theta = orientation_to_angle(msg.pose.pose.orientation)
         # print(f"Odom: {position}, {theta}, {velocity }")
-        
-        if velocity > 0:
-            self.add_data_line(position, velocity, theta)
+        time_stamp = msg.header.stamp.sec + msg.header.stamp.nanosec / 1e9
 
-    def add_data_line(self, position, velocity, theta):
+        # if velocity > 0:
+        self.add_data_line(position, velocity, theta, time_stamp)
+
+    def add_data_line(self, position, velocity, theta, time_stamp):
         with open(self.odom_log_file, "a") as f:
-            data = f"{position[0]}, {position[1]}, {theta}, {velocity}"
+            data = f"{position[0]}, {position[1]}, {theta}, {velocity}, {time_stamp}"
             f.write(data + "\n")
 
 def main():
