@@ -164,6 +164,7 @@ class SafetyTrainer(DriveNode):
         else:
             self.reward_sum += observation['reward']
             init_action = self.agent.plan(observation, True)
+        self.init_steering_actions.append(init_action[0])
 
         state = observation['state']
         state_safe = self.supervisor.check_kernel_state(state)
@@ -172,13 +173,13 @@ class SafetyTrainer(DriveNode):
             self.get_logger().info(f"State unsafe: {self.intervene}")
             if action[1] > 0.1:  action[1] = self.vehicle_speed
             self.intervene = False
+            self.safe_steering_actions.append(action[0])
             return action
 
         state[3] = self.conf.vehicle_speed 
 
         safe, next_state = self.supervisor.check_init_action(state, init_action)
         self.publish_prediction(next_state)
-        self.init_steering_actions.append(init_action[0])
         if safe:
             if init_action[1] > 0.1:  init_action[1] = self.vehicle_speed
             self.intervene = False 

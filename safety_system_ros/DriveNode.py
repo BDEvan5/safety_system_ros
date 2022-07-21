@@ -162,9 +162,11 @@ class DriveNode(Node):
         if closes and not self.near_start:
             self.near_start = True
             self.toggle_list += 1
+            self.get_logger().info(f"Near start true: {position}")
         elif not closes and self.near_start:
             self.near_start = False
             self.toggle_list += 1
+            self.get_logger().info(f"Near start false: {position}")
             # print(self.toggle_list)
         self.lap_counts = self.toggle_list // 2
         
