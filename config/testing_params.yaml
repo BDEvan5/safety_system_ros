@@ -2,7 +2,7 @@
 
 safety_trainer:
   ros__parameters: 
-    agent_name: "PaperSafetyAgent_2"
+    agent_name: "PaperSafetyAgent_3"
     # agent_name: "TestingAgent_1"
 
     map_name: "levine_blocked"
@@ -23,7 +23,8 @@ agent_tester:
   ros__parameters:
     n_laps: 2
     # agent_name: "LevineT_2"
-    agent_name: "PaperSafetyAgent_2"
+    agent_name: "BaselineSSS_levine_blocked_2_0_0"
+    # agent_name: "PaperSafetyAgent_3"
     # agent_name: "PaperSafetyAgent_1"
 
 

@@ -53,7 +53,7 @@ def make_paper_plot_safety():
     plt.tight_layout()
     plt.grid()
 
-    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\textwidth'])
+    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\\textwidth'])
 
     plt.show()
 

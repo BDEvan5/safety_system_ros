@@ -61,7 +61,7 @@ class Supervisor:
         return safe, next_state
 
     def check_kernel_state(self, state):
-        self.plot_kernel_point(state)
+        # self.plot_kernel_point(state)
         safe = check_kernel_state(state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
         return safe
 
@@ -139,17 +139,20 @@ class SafetyTrainer(DriveNode):
 
         self.init_steering_actions = []
         self.safe_steering_actions = []
+        self.episode_rewards = []
 
         self.ns_pub = self.create_publisher(PoseStamped, '/ns_pose', 10)
         
     def check_training(self):
         if self.plan_steps % 20 == 0: 
             self.get_logger().info(f"Steps: {self.plan_steps} -> intervene: {self.intervenes} -- Reward: {self.reward_sum}")
+            self.episode_rewards.append(self.reward_sum)
             self.reward_sum = 0
             self.send_drive_message(np.array([0, 0])) # send a drive message to stop
             self.agent.agent.train(20)
 
             self.agent.agent.save(self.agent.path)
+            np.save(self.agent.path + '/ep_rewards.npy', self.episode_rewards)
         
         self.plan_steps+= 1
 

@@ -2,7 +2,7 @@ import numpy as np
 import tikzplotlib  
 import matplotlib.pyplot as plt
 
-def make_steering_graph(vehicle="PaperSafetyAgent_2"):
+def make_steering_graph(vehicle="PaperSafetyAgent_3"):
     directory = f'/home/benjy/sim_ws/src/safety_system_ros/Data/Vehicles/{vehicle}/'
     init_steering = np.load(directory + "/init_steering_actions.npy")
     safe_steering = np.load(directory + "/safe_steering_actions.npy")
@@ -34,7 +34,15 @@ def plot_test_actions(vehicle="PaperSafetyAgent_2"):
 
     plt.show()
 
+def plot_training_rewards(vehicle="PaperSafetyAgent_3"):
+    directory = f'/home/benjy/sim_ws/src/safety_system_ros/Data/Vehicles/{vehicle}/'
+    rewards = np.load(directory + "ep_rewards.npy")
 
+    plt.figure(figsize=(10,2))
+    plt.plot(rewards, 'b', label="Rewards")
 
-make_steering_graph()
+    plt.show()
+
+# make_steering_graph()
 # plot_test_actions()
+plot_training_rewards()
