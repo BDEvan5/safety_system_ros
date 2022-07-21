@@ -25,12 +25,16 @@ class AgentTester(DriveNode):
 
         self.agent = TestVehicle(self.conf, agent_name)
 
+        self.steering_actions = []
+
     def calculate_action(self, observation):
-        return self.agent.plan(observation)
+        action = self.agent.plan(observation)
+        self.steering_actions.append(action[0])
+        return action
 
     def lap_complete_callback(self):
         self.get_logger().info(f"Lap complee: {self.current_lap_time}")
-
+        np.save(self.agent.path + "/steering_actions.npy", self.steering_actions)
 
 
 def main(args=None):

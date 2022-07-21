@@ -12,30 +12,16 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     config = os.path.join(
-        "/home/nvidia/f1tenth_ws/src/safety_system_ros/",
-        # "/home/benjy/sim_ws/src/safety_system_ros/",
+        # "/home/nvidia/f1tenth_ws/src/safety_system_ros/",
+        "/home/benjy/sim_ws/src/safety_system_ros/",
         'config',
         'testing_params.yaml'
     )
 
-    # testing_node = Node(
-    #     package='safety_system_ros',
-    #     executable='pure_pursuit',
-    #     name='pure_pursuit',
-    #     parameters=[config]
-    # )
-
-    # testing_node = Node(
-    #     package='safety_system_ros',
-    #     executable='pp2',
-    #     name='pp2',
-    #     parameters=[config]
-    # )
-
     testing_node = Node(
         package='safety_system_ros',
-        executable='super_t',
-        name='super_t',
+        executable='pure_pursuit',
+        name='pure_pursuit',
         parameters=[config]
     )
 

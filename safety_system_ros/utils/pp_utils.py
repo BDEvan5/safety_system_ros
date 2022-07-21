@@ -164,8 +164,8 @@ class Trajectory:
         self.o_points = None
         self.traj_name = "Not set yet"
         # self.load_csv_track()
-        self.directory = f'/home/nvidia/f1tenth_ws/src/safety_system_ros/'
-        # self.directory = f'/home/benjy/sim_ws/src/safety_system_ros/'
+        # self.directory = f'/home/nvidia/f1tenth_ws/src/safety_system_ros/'
+        self.directory = f'/home/benjy/sim_ws/src/safety_system_ros/'
         self.load_centerline_csv_track()
         self.n_wpts = len(self.waypoints)
 
@@ -196,7 +196,7 @@ class Trajectory:
         self.ss = track[:, 0]
         self.diffs = self.o_pts[1:,:] - self.o_pts[:-1,:]
         self.l2s   = self.diffs[:,0]**2 + self.diffs[:,1]**2 
-        # self.show_trajectory()
+        self.show_trajectory()
 
         
     def load_centerline_csv_track(self):
