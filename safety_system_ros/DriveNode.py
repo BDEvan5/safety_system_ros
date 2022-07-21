@@ -17,9 +17,7 @@ from copy import copy
 
 
 
-
-
-class BaseNode(Node):
+class DriveNode(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
         self.conf = load_conf("config_file") 
@@ -51,11 +49,9 @@ class BaseNode(Node):
         self.drive_publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.cmd_timer = self.create_timer(self.conf.simulation_time, self.drive_callback)
 
-        odom_topic = "pf/pose/odom"
-        # odom_topic = "ego_racecar/odom"
-        self.odom_subscriber = self.create_subscription(Odometry, odom_topic, self.odom_callback, 10)
+        self.odom_subscriber = self.create_subscription(Odometry, 'ego_racecar/odom', self.odom_callback, 10)
 
-        # self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
+        self.current_drive_sub = self.create_subscription(AckermannDrive, 'ego_racecar/current_drive', self.current_drive_callback, 10)
 
         self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
 
@@ -64,11 +60,7 @@ class BaseNode(Node):
             '/initialpose', 10)
 
     def current_drive_callback(self, msg):
-        self.steering_angle = 0
-        # self.steering_angle = msg.steering_angle
-
-    def training_callback(self):
-        self.planner.agent.train(2)
+        self.steering_angle = msg.steering_angle
 
     def odom_callback(self, msg):
         position = msg.pose.pose.position
@@ -80,13 +72,7 @@ class BaseNode(Node):
         self.theta = copy(theta)
 
     def scan_callback(self, msg):
-        # self.get_logger().info(f"Scan Callback: {msg}")
-        scan = np.array(msg.ranges)
-        # scan = scan[190:-190]
-        # inds = np.arange(0, 700, 35)
-        # scan = scan[inds]
-
-        self.scan = scan
+        self.scan = np.array(msg.ranges)
 
     def lap_done(self):
         self.current_lap_time = time.time() - self.lap_start_time
@@ -201,14 +187,13 @@ class BaseNode(Node):
         self.get_logger().info("Finished Resetting")
 
     def run_lap(self):
-        if self.planner == None:
-            raise NotImplementedError
-        # time.sleep(0.5)
-        # self.ego_reset()
-        # time.sleep(0.5)
+        time.sleep(0.1)
+        self.ego_reset()
+        time.sleep(0.1)
 
         self.current_lap_time = 0.0
         self.running = True
+
 
 if __name__ == '__main__':
     pass

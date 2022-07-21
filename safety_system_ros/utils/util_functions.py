@@ -65,12 +65,8 @@ def quaternion_to_euler_angle(w, x, y, z):
     return X, Y, Z
 
 
-@njit(cache=True)
-def limit_phi(phi):
-    while phi > np.pi:
-        phi = phi - 2*np.pi
-    while phi < -np.pi:
-        phi = phi + 2*np.pi
-    return phi
+def orientation_to_angle(orientation):
+    x, y, z = quaternion_to_euler_angle(orientation.w, orientation.x, orientation.y, orientation.z)
+    theta = z * np.pi / 180
 
-
+    return theta

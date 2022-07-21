@@ -1,6 +1,6 @@
-image: levine_2nd_edit.png
+# image: levine_2nd_edit.png
 # image: levine_2nd_filled.png
-# image: levine_2nd.pgm
+image: levine_2nd.pgm
 mode: trinary
 resolution: 0.05
 # origin: [-19.5, -6, 0]

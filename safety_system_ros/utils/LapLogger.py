@@ -5,9 +5,9 @@ from safety_system_ros.utils.util_functions import *
 
 class LapLogger:
     def __init__(self, vehicle_path):
-        abs_path = "/home/benjy/sim_ws/src/safety_system_ros/"
+        # abs_path = "/home/benjy/sim_ws/src/safety_system_ros/"
         # self.path = abs_path + "Data/Logs/"
-        self.path = vehicle_path + "/" # activate this after teting
+        self.path = vehicle_path + "/" 
         self.current_log_file = None
 
         self.lap = 0
