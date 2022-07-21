@@ -43,7 +43,7 @@ def make_boxes():
     plt.figure(figsize=(4, 1.5))
 
     # for i in range(len(time_sets)):
-    plt.boxplot(time_sets, labels=names, vert=False, boxprops={'linewidth':2, 'color':'darkblue'}, whiskerprops={'linewidth':3, 'color':'darkblue'}, medianprops={'linewidth':3, 'color':'darkblue'}, capprops={'linewidth':3, 'color':'darkblue'}, widths=0.7, showfliers=False)
+    plt.boxplot(time_sets, labels=names, vert=False, boxprops={'linewidth':2, 'color':'darkblue'}, whiskerprops={'linewidth':3, 'color':'darkblue'}, medianprops={'linewidth':3, 'color':'darkblue'}, capprops={'linewidth':3, 'color':'darkblue'}, widths=0.7, showfliers=False, patch_artist=True)
     plt.grid(True)
     plt.xlim(9, 13.5)
     plt.tight_layout()

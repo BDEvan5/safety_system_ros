@@ -14,6 +14,7 @@ class PurePursuitNode(DriveNode):
         self.declare_parameter('n_laps')
         self.declare_parameter('map_name')
         map_name = self.get_parameter('map_name').value
+        self.get_logger().info(f"Map name: {map_name}")
 
         self.trajectory = Trajectory(map_name)
 

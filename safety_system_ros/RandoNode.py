@@ -6,7 +6,6 @@ import time
 import numpy as np
 
 from safety_system_ros.utils.util_functions import *
-from safety_system_ros.Planners.RandomPlanner import RandomPlanner
 from safety_system_ros.Planners.PurePursuitPlanner import PurePursuitPlanner
 from safety_system_ros.utils.Dynamics import *
 
@@ -55,6 +54,31 @@ class Supervisor:
         safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
         
         return safe, next_state
+
+    def check_kernel_state(self, state):
+        self.plot_kernel_point(state)
+        safe = check_kernel_state(state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
+        return safe
+
+    def plot_kernel_point(self, state):
+        i, j, k, m = self.get_indices(state)
+        plt.figure(6)
+        plt.clf()
+        plt.title(f"Kernel inds: {i}, {j}, {k}, {m}: {self.m.qs[m]}")
+        img = self.kernel[:, :, k, m].T 
+        plt.imshow(img, origin='lower')
+        plt.plot(i, j, 'x', markersize=20, color='red')
+        plt.pause(0.0001)
+
+
+    def get_indices(self, state):
+        x_ind = min(max(0, int(round((state[0]-self.origin[0])*self.resolution))), self.kernel.shape[0]-1)
+        y_ind = min(max(0, int(round((state[1]-self.origin[1])*self.resolution))), self.kernel.shape[1]-1)
+
+        phi = limit_phi(state[2])
+        theta_ind = int(round((phi + self.phi_range/2) / self.phi_range * (self.kernel.shape[2]-1)))
+        mode = 0
+        return x_ind, y_ind, theta_ind, mode
      
 @njit(cache=True) 
 def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
@@ -101,9 +125,20 @@ class SuperRando(DriveNode):
         self.intervenes = 0
 
     def calculate_action(self, observation):
+        # return action
+        state = observation['state']
+        safe = self.supervisor.check_kernel_state(state)
+        if not safe:
+            action = self.pp_planner.plan(observation)
+            self.get_logger().info(f"State unsafe: ")
+            if action[1] > 0.1:  action[1] = self.vehicle_speed
+            return action
+
+
         # select random action
-        steering = np.clip(np.random.normal(0, 0.1), -self.d_max, self.d_max)
-        init_action = np.array([steering, self.vehicle_speed])
+        # steering = np.clip(np.random.normal(0, 0.1), -self.d_max, self.d_max)
+        # init_action = np.array([steering, self.vehicle_speed])
+        init_action = self.pp_planner.plan(observation)
 
         state = observation['state']
 
@@ -112,35 +147,12 @@ class SuperRando(DriveNode):
             if init_action[1] > 0.1:  init_action[1] = self.vehicle_speed
             return init_action
         else:
+            self.get_logger().info(f"Prediction Unsafe: ")
             action = self.pp_planner.plan(observation)
             self.intervenes += 1
             if action[1] > 0.1:  action[1] = self.vehicle_speed
             return action
 
-    # def calculate_action(self, observation):
-    #     if self.intervene:
-    #         observation['reward'] = - self.constant_reward + observation['reward']
-    #         self.agent.intervention_entry(observation)
-    #         self.reward_sum += observation['reward']
-    #         init_action = self.agent.plan(observation, False)
-    #     else:
-    #         self.reward_sum += observation['reward']
-    #         init_action = self.agent.plan(observation, True)
-
-    #     state = observation['state']
-    #     state[3] = self.conf.vehicle_speed 
-
-    #     safe, next_state = self.supervisor.check_init_action(state, init_action)
-    #     if safe:
-    #         if init_action[1] > 0.1:  init_action[1] = self.vehicle_speed
-    #         self.intervene = False 
-    #         return init_action
-    #     else:
-    #         action = self.planner.plan(state)
-    #         self.intervenes += 1
-    #         self.intervene = True
-    #         if action[1] > 0.1:  action[1] = self.vehicle_speed
-    #         return action
 
     def lap_complete_callback(self):
         print(f"Lap complee: {self.current_lap_time}")

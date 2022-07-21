@@ -9,8 +9,8 @@ import os, shutil
 def load_conf(fname):
     # mac_path = "/Users/benjamin/Documents/GitHub/safety_system_ros/config/"
 
-    # full_path =  "/home/benjy/sim_ws/src/safety_system_ros/config/" + fname + '.yaml'
-    full_path =  "/home/nvidia/f1tenth_ws/src/safety_system_ros/config/" + fname + '.yaml'
+    full_path =  "/home/benjy/sim_ws/src/safety_system_ros/config/" + fname + '.yaml'
+    # full_path =  "/home/nvidia/f1tenth_ws/src/safety_system_ros/config/" + fname + '.yaml'
     # full_path =  mac_path + fname + '.yaml'
     with open(full_path) as file:
         conf_dict = yaml.load(file, Loader=yaml.FullLoader)
@@ -70,3 +70,31 @@ def orientation_to_angle(orientation):
     theta = z * np.pi / 180
 
     return theta
+
+
+@njit(cache=True)
+def limit_phi(phi):
+    while phi > np.pi:
+        phi = phi - 2*np.pi
+    while phi < -np.pi:
+        phi = phi + 2*np.pi
+    return phi
+
+
+@njit(cache=True)
+def calculate_speed(delta):
+    b = 0.523
+    g = 9.81
+    l_d = 0.329
+    f_s = 0.8
+    max_v = 4
+
+    if abs(delta) < 0.06:
+        return max_v
+
+    V = f_s * np.sqrt(b*g*l_d/np.tan(abs(delta)))
+
+    return V
+
+
+

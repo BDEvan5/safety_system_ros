@@ -1,10 +1,6 @@
 import rclpy
-from rclpy.node import Node
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan
-from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
-from geometry_msgs.msg import PoseWithCovarianceStamped
-
+from geometry_msgs.msg import PoseStamped
+from transforms3d import euler
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -53,7 +49,6 @@ class Supervisor:
             yaml_file = dict(documents.items())
         self.origin = np.array(yaml_file['origin'])
 
-
     def check_init_action(self, state, init_action):
         next_state = run_dynamics_update(state, init_action, self.time_step/2)
         safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
@@ -64,7 +59,33 @@ class Supervisor:
         safe = check_kernel_state(next_state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
         
         return safe, next_state
+
+    def check_kernel_state(self, state):
+        # self.plot_kernel_point(state)
+        safe = check_kernel_state(state, self.kernel, self.origin, self.resolution, self.phi_range, self.m.qs)
+        return safe
+
+    def plot_kernel_point(self, state):
+        i, j, k, m = self.get_indices(state)
+        plt.figure(6)
+        plt.clf()
+        plt.title(f"Kernel inds: {i}, {j}, {k}, {m}: {self.m.qs[m]}")
+        img = self.kernel[:, :, k, m].T 
+        plt.imshow(img, origin='lower')
+        plt.plot(i, j, 'x', markersize=20, color='red')
+        plt.pause(0.0001)
+
+
+    def get_indices(self, state):
+        x_ind = min(max(0, int(round((state[0]-self.origin[0])*self.resolution))), self.kernel.shape[0]-1)
+        y_ind = min(max(0, int(round((state[1]-self.origin[1])*self.resolution))), self.kernel.shape[1]-1)
+
+        phi = limit_phi(state[2])
+        theta_ind = int(round((phi + self.phi_range/2) / self.phi_range * (self.kernel.shape[2]-1)))
+        mode = 0
+        return x_ind, y_ind, theta_ind, mode
      
+
 @njit(cache=True) 
 def check_kernel_state(state, kernel, origin, resolution, phi_range, qs):
         x_ind = min(max(0, int(round((state[0]-origin[0])*resolution))), kernel.shape[0]-1)
@@ -115,15 +136,23 @@ class SafetyTrainer(DriveNode):
         self.plan_steps = 0
         self.intervene = False
         self.constant_reward = 1
+
+        self.init_steering_actions = []
+        self.safe_steering_actions = []
+        self.episode_rewards = []
+
+        self.ns_pub = self.create_publisher(PoseStamped, '/ns_pose', 10)
         
     def check_training(self):
         if self.plan_steps % 20 == 0: 
             self.get_logger().info(f"Steps: {self.plan_steps} -> intervene: {self.intervenes} -- Reward: {self.reward_sum}")
+            self.episode_rewards.append(self.reward_sum)
             self.reward_sum = 0
             self.send_drive_message(np.array([0, 0])) # send a drive message to stop
             self.agent.agent.train(20)
 
             self.agent.agent.save(self.agent.path)
+            np.save(self.agent.path + '/ep_rewards.npy', self.episode_rewards)
         
         self.plan_steps+= 1
 
@@ -138,25 +167,60 @@ class SafetyTrainer(DriveNode):
         else:
             self.reward_sum += observation['reward']
             init_action = self.agent.plan(observation, True)
+        self.init_steering_actions.append(init_action[0])
 
         state = observation['state']
+        state_safe = self.supervisor.check_kernel_state(state)
+        if not state_safe:
+            action = self.pp_planner.plan(observation)
+            self.get_logger().info(f"State unsafe: {self.intervene}")
+            if action[1] > 0.1:  action[1] = self.vehicle_speed
+            self.intervene = False
+            self.safe_steering_actions.append(action[0])
+            return action
+
         state[3] = self.conf.vehicle_speed 
 
         safe, next_state = self.supervisor.check_init_action(state, init_action)
+        self.publish_prediction(next_state)
         if safe:
             if init_action[1] > 0.1:  init_action[1] = self.vehicle_speed
             self.intervene = False 
+            self.safe_steering_actions.append(init_action[0])
             return init_action
         else:
-            action = self.pp_planner.plan(observation)
+            safe_action = self.pp_planner.plan(observation)
             self.intervenes += 1
             self.intervene = True
-            if action[1] > 0.1:  action[1] = self.vehicle_speed
-            return action
+            if safe_action[1] > 0.1:  safe_action[1] = self.vehicle_speed
+            self.safe_steering_actions.append(safe_action[0])
+            return safe_action
+
+    def publish_prediction(self, next_state):
+        msg = PoseStamped() 
+
+        ts = self.get_clock().now().to_msg()
+        msg.header.stamp = ts
+        msg.header.frame_id = 'map'
+
+        pose_quat = euler.euler2quat(0., 0., next_state[2], axes='sxyz')
+        msg.pose.orientation.x = pose_quat[1]
+        msg.pose.orientation.y = pose_quat[2]
+        msg.pose.orientation.z = pose_quat[3]
+        msg.pose.orientation.w = pose_quat[0]
+        msg.pose.position.x = next_state[0]
+        msg.pose.position.y = next_state[1]
+
+        self.ns_pub.publish(msg)
+
+
 
     def lap_complete_callback(self):
         print(f"Lap complee: {self.current_lap_time}")
         print(f"Interventions: {self.intervenes}")
+
+        np.save(self.agent.path + f"/init_steering_actions.npy", self.init_steering_actions)
+        np.save(self.agent.path + f"/safe_steering_actions.npy", self.safe_steering_actions)
 
 
 

@@ -145,12 +145,16 @@ class BagDataPlotter:
             plt.clf()
             plt.imshow(self.map_img, cmap='gray', origin='lower')
             pts = np.array([self.pos_xs[start:end], self.pos_ys[start:end]]).T
+
             plt.xlim(40, 640)
             plt.ylim(230, 540)
         # dots
             xs, ys = self.convert_positions(dot_pts)
             for k, pt in enumerate(dot_pts):
-                plt.plot(xs[k], ys[k], 'o', color='darkgreen')
+                if k == 0:
+                    plt.plot(xs[k], ys[k], 'o', color='red')
+                else:
+                    plt.plot(xs[k], ys[k], 'o', color='darkgreen')
         # trajectory
             xs, ys = self.convert_positions(pts)
             plt.plot(xs, ys, linewidth=3, color='darkblue')
