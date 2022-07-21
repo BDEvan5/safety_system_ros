@@ -28,6 +28,7 @@ def moving_average(data, period):
         ret[-i-1] = t[-1]
     return ret
 
+from matplotlib.ticker import MultipleLocator
 def make_paper_plot_safety():
     # path = "experiment_4/step_data.csv"
     # path = "experiment_1/step_data.csv"
@@ -43,17 +44,19 @@ def make_paper_plot_safety():
         avg_reward.append(avg)
         i += 20
 
-    plt.figure(1, figsize=(5, 2))
-    plt.plot(avg_reward, color='darkblue', linewidth=2)
-    plt.plot(moving_average(avg_reward, 10), color='red', linewidth=2)
+    plt.figure(1)
+    xs = np.arange(len(avg_reward)) *20 /100
+    plt.plot(xs, avg_reward, '.', color='darkblue', markersize=4)
+    plt.plot(xs, moving_average(avg_reward, 10), color='red', linewidth=2)
+    plt.gca().get_yaxis().set_major_locator(MultipleLocator(10))
 
-    plt.xlabel("Training Steps (x20)")
+    plt.xlabel("Training Steps (x100)")
     plt.ylabel("Reward (20 Steps)")
 
     plt.tight_layout()
     plt.grid()
 
-    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['axis equal image', 'width=0.56\\textwidth'])
+    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['height=4cm', 'width=0.5\\textwidth', 'clip mode=individual', 'height=4cm'])
 
     plt.show()
 
@@ -86,6 +89,6 @@ def make_paper_plot_baseline():
     plt.show()
 
 
-make_paper_plot_baseline()
-# make_paper_plot_safety()
+# make_paper_plot_baseline()
+make_paper_plot_safety()
 
