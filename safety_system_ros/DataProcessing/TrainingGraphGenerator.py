@@ -56,7 +56,7 @@ def make_paper_plot_safety():
     plt.tight_layout()
     plt.grid()
 
-    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['height=4cm', 'width=0.5\\textwidth', 'clip mode=individual', 'height=4cm'])
+    tikzplotlib.save(directory + "experiment_2/reward_plot.tex", strict=True, extra_axis_parameters=['height=4cm', 'width=0.5\\textwidth', 'clip mode=individual'])
 
     plt.show()
 
