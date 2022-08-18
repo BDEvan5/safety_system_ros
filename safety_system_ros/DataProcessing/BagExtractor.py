@@ -2,7 +2,9 @@ from turtle import pos
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
+from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import LaserScan
+
 
 from safety_system_ros.utils.util_functions import *
 
@@ -24,8 +26,11 @@ class BagExtractor(Node):
         init_file_struct(self.path)
         print(f"Initated file structure: {self.bag_name}")
         self.odom_log_file = self.path + self.bag_name + "_odom.csv"
+        self.action_log_file = self.path + self.bag_name + "_actions.csv"
 
         self.odom_sub = self.create_subscription(Odometry, 'pf/pose/odom', self.odom_callback, 10)
+
+        self.action_sub = self.create_subscription(AckermannDriveStamped, '/drive', self.action_callback, 10)
 
         self.started = False
         self.timer_called = False
@@ -33,6 +38,13 @@ class BagExtractor(Node):
 
         time.sleep(0.5)
         self.get_logger().info(f"Node running")
+
+    def action_callback(self, msg):
+        action = np.zeros(2)
+        action[0] = msg.drive.speed
+        action[1] = msg.drive.steering_angle
+        time_stamp = msg.header.stamp.sec + msg.header.stamp.nanosec / 1e9
+        self.add_action_line(action, time_stamp)
 
     def timer_callback(self):
         if self.started and self.timer_called:
@@ -57,6 +69,11 @@ class BagExtractor(Node):
     def add_data_line(self, position, velocity, theta, time_stamp):
         with open(self.odom_log_file, "a") as f:
             data = f"{position[0]}, {position[1]}, {theta}, {velocity}, {time_stamp}"
+            f.write(data + "\n")
+
+    def add_action_line(self, action, time_stamp):
+        with open(self.action_log_file, "a") as f:
+            data = f"{action[0]}, {action[1]}, {time_stamp}"
             f.write(data + "\n")
 
 def main():

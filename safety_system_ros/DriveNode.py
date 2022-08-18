@@ -186,9 +186,10 @@ class DriveNode(Node):
 
         msg.pose.pose.position.x = 0.0 
         msg.pose.pose.position.y = 0.0
-        msg.pose.pose.orientation.x = 0.
+
+        msg.pose.pose.orientation.x = 0.0
         msg.pose.pose.orientation.y = 0.0
-        msg.pose.pose.orientation.z = 0.707
+        msg.pose.pose.orientation.z = -0.707
         msg.pose.pose.orientation.w = 0.707
         # msg.pose.pose.orientation.x = 0.0
         # msg.pose.pose.orientation.y = 0.0

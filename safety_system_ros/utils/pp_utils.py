@@ -216,6 +216,7 @@ class Trajectory:
 
         # these get expanded
         self.waypoints = track[:, 0:2]
+        self.waypoints = self.waypoints[::-1, :]
         self.vs = np.ones_like(track[:, 0]) * 1 
 
         # these don't get expanded

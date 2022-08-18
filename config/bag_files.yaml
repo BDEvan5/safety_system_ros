@@ -1,7 +1,7 @@
 # testing
 bag_extractor:
   ros__parameters: 
-    rate: "1"
+    rate: "100"
     
     # bag_name: "e_1_test"
     # bag_name: "e_2_test"
@@ -46,8 +46,8 @@ bag_extractor:
     # bag_name: "ex4_on_lobby_test"
 
 
-    # bag_name: "ex4_on_lobby_test"
-    bag_name: "pp_lobby_1"
+    bag_name: "ex4_on_lobby_test"
+    # bag_name: "pp_lobby_1"
     # bag_name: "sim2real_lobby"
 
     # bag_name: "e_1_test"

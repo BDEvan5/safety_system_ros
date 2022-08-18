@@ -2,7 +2,7 @@
 # Vehicle params
 max_v: 7
 max_a: 8.5
-max_steer: 0.4
+max_steer: 0.5
 max_d_dot: 3.2
 mu: 0.523
 m: 3.47
