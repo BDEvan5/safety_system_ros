@@ -168,6 +168,7 @@ class BagDataPlotter:
                 if end_time_x10 < 5+ start_time_x10:
                     continue
                 mean_steer = np.abs(self.steering_ds[start_time_x10:end_time_x10]).mean()
+                if self.name =='sim2real_lobby': mean_steer *= 0.8 # Tested with 0.5 as max so reset for comparision
                 print(f"Mean Steer: {mean_steer}")
             print("---------------")
 
@@ -351,8 +352,8 @@ def explore_lobby():
 
 if __name__ == '__main__':
 
-    explore_lobby()
-    # explore_levine()
+    # explore_lobby()
+    explore_levine()
 
     # plt.show()
 

@@ -123,7 +123,7 @@ class DriveNode(Node):
         # with open("/home/benjy/sim_ws/src/safety_system_ros/Data/DriveNodeLapLog.csv") as file:
         lap_times = np.array(self.lap_times)
         np.save("/home/benjy/sim_ws/src/safety_system_ros/Data/DriveNodeLapLog.npy", lap_times)
-        self.get_logger().info("Saved lap times")
+        self.get_logger().info(f"Saved lap times: {lap_times}")
 
 
     @abstractmethod
@@ -189,16 +189,16 @@ class DriveNode(Node):
 
         msg.pose.pose.orientation.x = 0.0
         msg.pose.pose.orientation.y = 0.0
-        msg.pose.pose.orientation.z = -0.707
-        msg.pose.pose.orientation.w = 0.707
+        # msg.pose.pose.orientation.z = -0.707
+        # msg.pose.pose.orientation.w = 0.707
         # msg.pose.pose.orientation.x = 0.0
         # msg.pose.pose.orientation.y = 0.0
-        # msg.pose.pose.orientation.z = 0.0
-        # msg.pose.pose.orientation.w = 1.0
+        msg.pose.pose.orientation.z = 1.0
+        msg.pose.pose.orientation.w = 0.0
 
         self.ego_reset_pub.publish(msg)
 
-        self.get_logger().info("Finished Resetting: angle 90")
+        self.get_logger().info("Finished Resetting: angle 180")
 
     def run_lap(self):
         time.sleep(0.1)

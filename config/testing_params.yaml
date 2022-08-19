@@ -15,18 +15,18 @@ pure_pursuit:
     map_name: "lobby"
     # map_name: "levine_blocked"
     # map_name: "columbia_small"
-    n_laps: 10
+    n_laps: 2
     
     # supervision: True
     supervision: False
 
 agent_tester:
   ros__parameters:
-    n_laps: 10
+    n_laps: 2
     agent_name: "experiment_2"
     # agent_name: "BaselineSSS_levine_blocked_2_0_0"
     # agent_name: "SafetyTrainingAgent_3"
-    # agent_name: "PaperSafetyAgent_6"
+    # agent_name: "PaperSafetyAgent_1"
     # agent_name: "TestingAgent_1"
 
 

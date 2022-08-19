@@ -18,7 +18,7 @@ def load_data():
         name = os.path.split(folder)[-1]
         try:
             # filename = glob.glob(folder + "/lap_times.csv")
-            filename = folder + "/lap_times.csv"
+            filename = folder + "lap_times.csv"
             with open(filename, 'r') as csvfile:
                 csvFile = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)  
             
@@ -76,6 +76,11 @@ def combined_blox_plot():
 
     time_sets = [baseline, time_sets2[1], safety, time_sets2[0]]
     names = ['Sim: Base', 'Real: Base', 'Sim: SSS', 'Real: SSS']
+
+    with open("Data/PaperData/lobby_lap_times.txt", 'w') as f:
+        for i in range(4):
+            print(f"Vehicle: {names[i]} --> Mean time: {np.mean(time_sets[i])}")
+            f.write(f"Vehicle: {names[i]} --> Mean time: {np.mean(time_sets[i])}\n")
 
     fig = plt.figure(figsize=(4, 1))
     ax = fig.add_subplot(111)
